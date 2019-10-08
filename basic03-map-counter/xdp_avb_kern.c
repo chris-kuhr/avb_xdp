@@ -134,7 +134,7 @@ int  xdp_avtp_func(struct xdp_md *ctx)
              */
             lock_xadd(&rec->counter, 1);
 
-            int i;
+            int i,j;
             #pragma unroll
             for(i=0; i<16;i++){
                 #pragma unroll
