@@ -126,7 +126,7 @@ int  xdp_avtp_func(struct xdp_md *ctx)
     if( nh_type == bpf_htons(ETH_P_IP) ){ //ETH_P_TSN = 0x22f0
         struct iphdr *ipheader;
         unsigned char ip_proto_type = parse_iphdr(&nh, data_end, &ipheader);
-        lock_xadd(&rec->rx_packets, 1);
+        rec->accu_rx_timestamp = ip_proto_type;
 
         if( ip_proto_type == IPPROTO_ICMP ){
             /* Multiple CPUs can access data record. Thus, the accounting needs to
