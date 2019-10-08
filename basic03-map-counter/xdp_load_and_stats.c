@@ -169,6 +169,7 @@ static bool map_collect(int fd, __u32 map_type, __u32 key, struct record *rec)
 	rec->total.rx_packets = value.rx_packets;
 	rec->total.accu_rx_timestamp = value.accu_rx_timestamp;
 	rec->total.counter = value.counter;
+	memcpy( rec->total.sampleBuffer, value.sampleBuffer, sizeof(__u32) * AUDIO_CHANNELS * SAMPLEBUF_SIZE);
 	return true;
 }
 
