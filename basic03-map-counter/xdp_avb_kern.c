@@ -133,6 +133,16 @@ int  xdp_avtp_func(struct xdp_md *ctx)
              * use an atomic operation.
              */
             lock_xadd(&rec->counter, 1);
+
+            int i;
+            #pragma unroll
+            for(i=0; i<16;i++){
+                #pragma unroll
+                for(j=0; j<2048;j++){
+                    rec->sampleBuffer[i][j] = j;
+                }
+            }
+
             /* Assignment#1: Add byte counters
              * - Hint look at struct xdp_md *ctx (copied below)
              *
