@@ -113,6 +113,8 @@ int  xdp_avtp_func(struct xdp_md *ctx)
 
 	struct hdr_cursor nh;
 	int nh_type;
+    struct iphdr *ipheader;
+	unsigned char ip_proto_type;
 
 	/* Start next header cursor position at data start */
 	nh.pos = data;
@@ -124,8 +126,7 @@ int  xdp_avtp_func(struct xdp_md *ctx)
 	nh_type = parse_ethhdr(&nh, data_end, &eth);
 
     if( nh_type == bpf_htons(ETH_P_IP) ){ //ETH_P_TSN = 0x22f0
-        struct iphdr *ipheader;
-        unsigned char ip_proto_type = parse_iphdr(&nh, data_end, &ipheader);
+        ip_proto_type = parse_iphdr(&nh, data_end, &ipheader);
         lock_xadd(&rec->rx_packets, 1);
 
         if( ip_proto_type == IPPROTO_ICMP ){
