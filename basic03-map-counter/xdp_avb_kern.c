@@ -54,7 +54,7 @@ int  xdp_avtp_func(struct xdp_md *ctx)
         rec->rx_packets = rec->counter;
         return XDP_PASS;
      } else {
-        return XDP_PASS;
+        return XDP_DROP;
     }
 
 }
