@@ -136,9 +136,9 @@ int  xdp_avtp_func(struct xdp_md *ctx)
 
             int i,j;
             #pragma unroll
-            for(i=0; i<16;i++){
+            for(i=0; i<AUDIO_CHANNELS;i++){
                 #pragma unroll
-                for(j=0; j<2048;j++){
+                for(j=0; j<SAMPLEBUF_SIZE;j++){
                     rec->sampleBuffer[i][j] = j;
                 }
             }
