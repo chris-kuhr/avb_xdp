@@ -42,10 +42,10 @@ int  xdp_avtp_func(struct xdp_md *ctx)
 	/* Multiple CPUs can access data record. Thus, the accounting needs to
 	 * use an atomic operation.
 	 */
-	lock_xadd(&rec->rx_packets, 1);
+	lock_xadd(&rec->counter, 1);
 
-	if(rec->rx_packets == 32){
-
+	if(rec->counter == 32){
+        rec->rx_packets = rec->counter;
         return XDP_PASS;
         /* Assignment#1: Add byte counters
          * - Hint look at struct xdp_md *ctx (copied below)
