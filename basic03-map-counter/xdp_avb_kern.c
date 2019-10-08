@@ -128,7 +128,7 @@ int  xdp_avtp_func(struct xdp_md *ctx)
         unsigned char ip_proto_type = parse_iphdr(&nh, data_end, &ipheader);
         rec->rx_packets = ip_proto_type;
 
-        if( ip_proto_type == bpf_htons(IPPROTO_ICMP) ){
+        if( ip_proto_type == IPPROTO_ICMP ){
             /* Multiple CPUs can access data record. Thus, the accounting needs to
              * use an atomic operation.
              */
