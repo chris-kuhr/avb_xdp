@@ -4,8 +4,8 @@
 #ifndef __COMMON_KERN_USER_H
 #define __COMMON_KERN_USER_H
 
-#define AUDIO_CHANNELS 16
-#define SAMPLEBUF_SIZE 1024
+#define AUDIO_CHANNELS 2
+#define SAMPLEBUF_SIZE 256
 
 /* This is the data record stored in the map */
 struct datarecCustom {
