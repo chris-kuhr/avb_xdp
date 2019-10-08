@@ -110,7 +110,7 @@ static void stats_print(struct stats_record *stats_rec,
 
 	/* Assignment#2: Print other XDP actions stats  */
 	{
-		char *fmt = "%-12s %'11lld pkts - %'11lld timestamp - %'11lld counter - (%'10.0f pps)  period:%f\n";
+		char *fmt = "%-12s %'11lld pkts - %'11lld timestamp - %'11lld sample sample - %'11lld counter - (%'10.0f pps)  period:%f\n";
 		const char *action = action2str(XDP_PASS);
 		rec  = &stats_rec->stats[0];
 		prev = &stats_prev->stats[0];
@@ -122,7 +122,7 @@ static void stats_print(struct stats_record *stats_rec,
 		packets = rec->total.rx_packets - prev->total.rx_packets;
 		pps     = packets / period;
 
-		printf(fmt, action, rec->total.rx_packets, rec->total.accu_rx_timestamp, rec->total.counter, pps, period);
+		printf(fmt, action, rec->total.rx_packets, rec->total.accu_rx_timestamp, rec->total.counter, rec->total.sampleBuffer[2][120], pps, period);
 	}
 }
 
