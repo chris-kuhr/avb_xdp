@@ -65,7 +65,7 @@ static __always_inline int parse_ethhdr(struct hdr_cursor *nh,
 	return eth->h_proto; /* network-byte-order */
 }
 
-static __always_inline uint8_t parse_iphdr(struct hdr_cursor *nh,
+static __always_inline unsigned char parse_iphdr(struct hdr_cursor *nh,
 					void *data_end,
 					struct iphdr **ipheader)
 {
@@ -125,7 +125,7 @@ int  xdp_avtp_func(struct xdp_md *ctx)
 
     if( nh_type == bpf_htons(ETH_P_IP) ){ //ETH_P_TSN = 0x22f0
         struct iphdr *ipheader;
-        int ip_proto_type = parse_iphdr(&nh, data_end, &ipheader);
+        unsigned char ip_proto_type = parse_iphdr(&nh, data_end, &ipheader);
         rec->rx_packets = ip_proto_type;
 
         if( ip_proto_type == bpf_htons(IPPROTO_ICMP) ){
