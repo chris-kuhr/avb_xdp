@@ -50,7 +50,7 @@ int  xdp_avtp_func(struct xdp_md *ctx)
          * - Hint there is a map type named BPF_MAP_TYPE_PERCPU_ARRAY
          */
 
-     if( rec->counter == 32 ){
+     if( rec->counter % 32 == 0 ){
         rec->rx_packets = rec->counter;
         return XDP_PASS;
      } else {
