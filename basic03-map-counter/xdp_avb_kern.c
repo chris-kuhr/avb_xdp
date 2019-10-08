@@ -65,7 +65,7 @@ static __always_inline int parse_ethhdr(struct hdr_cursor *nh,
 	return eth->h_proto; /* network-byte-order */
 }
 
-static __always_inline int parse_iphdr(struct hdr_cursor *nh,
+static __always_inline uint8_t parse_iphdr(struct hdr_cursor *nh,
 					void *data_end,
 					struct iphdr **ipheader)
 {
