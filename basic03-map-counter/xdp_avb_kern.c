@@ -25,7 +25,7 @@
  * - Here an array with XDP_ACTION_MAX (max_)entries are created.
  * - The idea is to keep stats per (enum) xdp_action
  */
-struct bpf_map_def SEC("maps") xdp_stats_map = {
+struct bpf_map_def SEC("maps") xdp_stats_map2 = {
 	.type        = BPF_MAP_TYPE_ARRAY,
 	.key_size    = sizeof(__u32),
 	.value_size  = sizeof(struct datarecCustom),

@@ -293,7 +293,7 @@ int main(int argc, char **argv)
 	}
 
 	/* Lesson#3: Locate map file descriptor */
-	stats_map_fd = find_map_fd(bpf_obj, "xdp_stats_map");
+	stats_map_fd = find_map_fd(bpf_obj, "xdp_stats_map2");
 	if (stats_map_fd < 0) {
 		xdp_link_detach(cfg.ifindex, cfg.xdp_flags, 0);
 		return EXIT_FAIL_BPF;
