@@ -172,6 +172,7 @@ static bool map_collect(int fd, __u32 map_type, __u32 key, struct record *rec)
 	return true;
 }
 
+
 static void stats_collect(int map_fd, __u32 map_type,
 			  struct stats_record *stats_rec)
 {
