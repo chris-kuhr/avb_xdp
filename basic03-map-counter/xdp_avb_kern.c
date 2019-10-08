@@ -28,7 +28,7 @@
 struct bpf_map_def SEC("maps") xdp_stats_map = {
 	.type        = BPF_MAP_TYPE_ARRAY,
 	.key_size    = sizeof(__u32),
-	.value_size  = sizeof(struct datarec),
+	.value_size  = sizeof(struct datarecCustom),
 	.max_entries = XDP_ACTION_MAX,
 };
 
@@ -99,7 +99,7 @@ int  xdp_avtp_func(struct xdp_md *ctx)
 	struct ethhdr *eth;
 	// void *data_end = (void *)(long)ctx->data_end;
 	// void *data     = (void *)(long)ctx->data;
-	struct datarec *rec;
+	struct datarecCustom *rec;
 	__u32 key = XDP_PASS; /* XDP_PASS = 2 */
 
 	/* Lookup in kernel BPF-side return pointer to actual data record */
@@ -125,11 +125,11 @@ int  xdp_avtp_func(struct xdp_md *ctx)
 	 */
 	nh_type = parse_ethhdr(&nh, data_end, &eth);
 
-    if( nh_type == = bpf_htons(ETH_P_IP) ){ //ETH_P_TSN = 0x22f0
+    if( nh_type == bpf_htons(ETH_P_IP) ){ //ETH_P_TSN = 0x22f0
         struct iphdr *ipheader;
-        ip_proto_type = parse_iphdr(&nh, data_end, &ipheader);
+        int ip_proto_type = parse_iphdr(&nh, data_end, &ipheader);
 
-        if( ip_proto_type == = bpf_htons(IPPROTO_ICMP) ){
+        if( ip_proto_type == bpf_htons(IPPROTO_ICMP) ){
             /* Multiple CPUs can access data record. Thus, the accounting needs to
              * use an atomic operation.
              */

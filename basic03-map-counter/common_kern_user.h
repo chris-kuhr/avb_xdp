@@ -5,7 +5,7 @@
 #define __COMMON_KERN_USER_H
 
 /* This is the data record stored in the map */
-struct datarec {
+struct datarecCustom {
 	__u64 counter;
 	__u64 rx_packets;
 	__u64 accu_rx_timestamp;

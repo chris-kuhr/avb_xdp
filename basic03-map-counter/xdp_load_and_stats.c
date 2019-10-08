@@ -81,7 +81,7 @@ static __u64 gettime(void)
 
 struct record {
 	__u64 timestamp;
-	struct datarec total; /* defined in common_kern_user.h */
+	struct datarecCustom total; /* defined in common_kern_user.h */
 };
 
 struct stats_record {
@@ -129,7 +129,7 @@ static void stats_print(struct stats_record *stats_rec,
 }
 
 /* BPF_MAP_TYPE_ARRAY */
-void map_get_value_array(int fd, __u32 key, struct datarec *value)
+void map_get_value_array(int fd, __u32 key, struct datarecCustom *value)
 {
 	if ((bpf_map_lookup_elem(fd, &key, value)) != 0) {
 		fprintf(stderr,
@@ -138,18 +138,18 @@ void map_get_value_array(int fd, __u32 key, struct datarec *value)
 }
 
 /* BPF_MAP_TYPE_PERCPU_ARRAY */
-void map_get_value_percpu_array(int fd, __u32 key, struct datarec *value)
+void map_get_value_percpu_array(int fd, __u32 key, struct datarecCustom *value)
 {
 	/* For percpu maps, userspace gets a value per possible CPU */
 	// unsigned int nr_cpus = bpf_num_possible_cpus();
-	// struct datarec values[nr_cpus];
+	// struct datarecCustom values[nr_cpus];
 
 	fprintf(stderr, "ERR: %s() not impl. see assignment#3", __func__);
 }
 
 static bool map_collect(int fd, __u32 map_type, __u32 key, struct record *rec)
 {
-	struct datarec value;
+	struct datarecCustom value;
 
 	/* Get time as close as possible to reading map contents */
 	rec->timestamp = gettime();
@@ -299,9 +299,9 @@ int main(int argc, char **argv)
 		return EXIT_FAIL_BPF;
 	}
 
-	/* Lesson#4: check map info, e.g. datarec is expected size */
+	/* Lesson#4: check map info, e.g. datarecCustom is expected size */
 	map_expect.key_size    = sizeof(__u32);
-	map_expect.value_size  = sizeof(struct datarec);
+	map_expect.value_size  = sizeof(struct datarecCustom);
 	map_expect.max_entries = XDP_ACTION_MAX;
 	err = __check_map_fd_info(stats_map_fd, &info, &map_expect);
 	if (err) {
