@@ -6,7 +6,9 @@
 
 /* This is the data record stored in the map */
 struct datarec {
+	__u64 counter;
 	__u64 rx_packets;
+	__u64 accu_rx_timestamp;
 	/* Assignment#1: Add byte counters */
 };
 

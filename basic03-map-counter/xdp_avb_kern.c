@@ -22,8 +22,8 @@ struct bpf_map_def SEC("maps") xdp_stats_map = {
 #define lock_xadd(ptr, val)	((void) __sync_fetch_and_add(ptr, val))
 #endif
 
-SEC("xdp_stats1")
-int  xdp_stats1_func(struct xdp_md *ctx)
+SEC("xdp_avtp")
+int  xdp_avtp_func(struct xdp_md *ctx)
 {
 	// void *data_end = (void *)(long)ctx->data_end;
 	// void *data     = (void *)(long)ctx->data;
@@ -42,7 +42,7 @@ int  xdp_stats1_func(struct xdp_md *ctx)
 	/* Multiple CPUs can access data record. Thus, the accounting needs to
 	 * use an atomic operation.
 	 */
-	lock_xadd(&rec->rx_packets, 1);
+	lock_xadd(&rec->counter, 1);
         /* Assignment#1: Add byte counters
          * - Hint look at struct xdp_md *ctx (copied below)
          *
@@ -50,7 +50,13 @@ int  xdp_stats1_func(struct xdp_md *ctx)
          * - Hint there is a map type named BPF_MAP_TYPE_PERCPU_ARRAY
          */
 
-	return XDP_PASS;
+     if( rec->counter == 32 ){
+        rec->rx_packets = rec->counter;
+        return XDP_PASS;
+     } else {
+        return XDP_PASS;
+    }
+
 }
 
 char _license[] SEC("license") = "GPL";
