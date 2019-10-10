@@ -136,11 +136,11 @@ int  xdp_avtp_func(struct xdp_md *ctx)
             __u8 proto1722 = parse_1722hdr(&nh, data_end, &hdr1722);
             if( bpf_htons(proto1722) == 0x00
                         && __builtin_memcmp(listen_stream_id, hdr1722->stream_id, 8) == 0){ /* 1722-AVTP & StreamId */
-                six1883_header_t *hdr61883;
-                //__u8 audioChannels =
-                parse_61883hdr(&nh, data_end, &hdr61883);
-                __u32 *avtpSamples = (__u32*)nh.pos;
-
+//                six1883_header_t *hdr61883;
+//                //__u8 audioChannels =
+//                parse_61883hdr(&nh, data_end, &hdr61883);
+//                __u32 *avtpSamples = (__u32*)nh.pos;
+//
 //                int i,j;
 //                #pragma unroll
 //                for(i=0; i<6*AUDIO_CHANNELS;i+=AUDIO_CHANNELS){
