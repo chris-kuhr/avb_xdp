@@ -49,9 +49,9 @@ struct hdr_cursor {
  * All return values are in host byte order.
  */
 static __always_inline int parse_ethhdr(struct hdr_cursor *nh,
-					void *data_end, struct eth_headerQ **ethhdr)
+					void *data_end, struct eth_headerQ_t **ethhdr)
 {
-	struct eth_headerQ *eth = nh->pos;
+	struct eth_headerQ_t *eth = nh->pos;
 	int hdrsize = sizeof(*eth);
 
 	/* Byte-count bounds check; check if current pointer + size of header
@@ -67,9 +67,9 @@ static __always_inline int parse_ethhdr(struct hdr_cursor *nh,
 }
 
 static __always_inline unsigned char parse_1722hdr(struct hdr_cursor *nh,
-					void *data_end, struct seventeen22_header **hdr1722)
+					void *data_end, struct seventeen22_header_t **hdr1722)
 {
-	struct seventeen22_header *tmp_hdr1722 = nh->pos;
+	struct seventeen22_header_t *tmp_hdr1722 = nh->pos;
 	int hdrsize = sizeof(*tmp_hdr1722);
 
 	/* Byte-count bounds check; check if current pointer + size of header
@@ -85,9 +85,9 @@ static __always_inline unsigned char parse_1722hdr(struct hdr_cursor *nh,
 }
 
 static __always_inline unsigned char parse_61883hdr(struct hdr_cursor *nh,
-					void *data_end, struct six1883_header **hdr61883)
+					void *data_end, struct six1883_header_t **hdr61883)
 {
-	struct six1883_header *tmp_hdr61883 = nh->pos;
+	struct six1883_header_t *tmp_hdr61883 = nh->pos;
 	int hdrsize = sizeof(*tmp_hdr61883);
 
 	/* Byte-count bounds check; check if current pointer + size of header
@@ -114,7 +114,7 @@ int  xdp_avtp_func(struct xdp_md *ctx)
 {
 	void *data_end = (void *)(long)ctx->data_end;
 	void *data = (void *)(long)ctx->data;
-	struct eth_headerQ *eth;
+	struct eth_headerQ_t *eth;
 	struct datarecCustom *rec;
 	__u32 key = XDP_PASS; /* XDP_PASS = 2 */
 
@@ -131,11 +131,11 @@ int  xdp_avtp_func(struct xdp_md *ctx)
 	nh_type = parse_ethhdr(&nh, data_end, &eth);
     if( nh_type == bpf_htons(ETHER_TYPE_AVTP) ){
         if( memcmp(listen_dst_mac, eth->h_dest, 6 ) == 0 ){
-            struct seventeen22_header *hdr1722;
+            struct seventeen22_header_t *hdr1722;
             unsigned char proto1722 = parse_1722hdr(&nh, data_end, &hdr1722);
             rec->accu_rx_timestamp = proto1722;
             if( proto1722 == 0x00 && memcmp(listen_stream_id, hdr1722->stream_id, ) == 0){ /* 1722-AVTP & StreamId */
-                struct six1883_sample *hdr61883;
+                struct six1883_header_t *hdr61883;
                 unsigned char audioChannels = parse_61883hdr(&nh, data_end, &hdr61883);
                     __u32 *avptSamples = (__u32*)nh.pos;
 
