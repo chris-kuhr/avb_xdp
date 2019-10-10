@@ -13,6 +13,11 @@
 #include "common_kern_user.h" /* defines: struct datarec; */
 
 
+#ifndef __section
+# define __section(NAME)                  \
+   __attribute__((section(NAME), used))
+#endif
+
 /* - Here an array with XDP_ACTION_MAX (max_)entries are created.
  * - The idea is to keep stats per (enum) xdp_action
  */
