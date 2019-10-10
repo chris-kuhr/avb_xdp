@@ -21,7 +21,7 @@ typedef struct eth_headerQ{
 	__u8 h_protocol[2];
 } eth_headerQ_t;
 
-typedef struct {
+typedef struct seventeen22_header{
 	__u8 subtype_cd;
 	__u8 ts_gw_sid_valid_version;
 	__u8 seq_number;
@@ -33,7 +33,7 @@ typedef struct {
 } seventeen22_header_t;
 
 /* 61883 CIP with SYT Field */
-typedef struct {
+typedef struct six1883_header{
 	__u8 packet_channel_format_tag;
 	__u8 app_control_packet_tcode;
 	__u8 source_id_reserved0;
