@@ -10,7 +10,7 @@
 
 #define ETH_ALEN   6 /* Size of Ethernet address */
 
-typedef struct eth_headerQ{
+typedef struct eth_headerQ_t{
 	/* Destination MAC address. */
 	__u8 h_dest [ETH_ALEN];
 	/* Destination MAC address. */
@@ -19,9 +19,9 @@ typedef struct eth_headerQ{
 	__u8 h_vlan[4];
 	/* Protocol ID. */
 	__u8 h_protocol[2];
-} eth_headerQ_t;
+} ;
 
-typedef struct seventeen22_header{
+typedef struct seventeen22_header_t{
 	__u8 subtype_cd;
 	__u8 ts_gw_sid_valid_version;
 	__u8 seq_number;
@@ -30,10 +30,10 @@ typedef struct seventeen22_header{
 	__u8 timestamp[4];
 	__u8 gateway_info[4];
 	__u8 length[2];
-} seventeen22_header_t;
+} ;
 
 /* 61883 CIP with SYT Field */
-typedef struct six1883_header{
+typedef struct six1883_header_t{
 	__u8 packet_channel_format_tag;
 	__u8 app_control_packet_tcode;
 	__u8 source_id_reserved0;
@@ -43,6 +43,6 @@ typedef struct six1883_header{
 	__u8 format_id_eoh;
 	__u8 format_dependent_field:8;
 	__u8 syt[2];
-} six1883_header_t;
+} ;
 
 #endif
