@@ -2,7 +2,7 @@
 #define __AVB_AVTP_H__
 
 
-#define MAX_SAMPLE_VALUE ((1U << ((sizeof(int32_t)*8)-1))-1)
+#define MAX_SAMPLE_VALUE ((1U << ((sizeof(int)*8)-1))-1)
 
 #define IEEE_61883_IIDC_SUBTYPE 0x0
 

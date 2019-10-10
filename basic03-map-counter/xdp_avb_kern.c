@@ -148,13 +148,13 @@ int  xdp_avtp_func(struct xdp_md *ctx)
                         __u32 sample = bpf_htonl(avtpSamples[i+j]);
                         sample &= 0x00ffffff;
                         sample <<= 8;
-                        rec->sampleBuffer[i][j] = ((int)frame[j])/(float)(MAX_SAMPLE_VALUE);/* use tail here */
+                        rec->sampleBuffer[i][j] = ((int)sample)/(float)(MAX_SAMPLE_VALUE);/* use tail here */
                         lock_xadd(&rec->sampleCounter, 1);
                     }
                 }
 
                 lock_xadd(&rec->rx_pkt_cnt, 1);
-                if( rec->counter % SAMPLEBUF_SIZE == 0 ){
+                if( rec->rx_pkt_cnt % SAMPLEBUF_SIZE == 0 ){
                     rec->accu_rx_timestamp = 0x123456789;
                     return XDP_PASS;
                 } else {
