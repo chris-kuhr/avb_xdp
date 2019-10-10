@@ -117,7 +117,7 @@ int  xdp_avtp_func(struct xdp_md *ctx)
 	nh.pos = data;
 
 	nh_type = parse_ethhdr(&nh, data_end, &eth);
-    if( nh_type == bpf_htons(ETHER_TYPE_AVTP) ){
+    if( nh_type == bpf_htons(ETH_P_TSN) ){ //
         if( __builtin_memcmp(listen_dst_mac, eth->h_dest, 6 ) == 0 ){
             seventeen22_header_t *hdr1722;
             __u8 proto1722 = parse_1722hdr(&nh, data_end, &hdr1722);
