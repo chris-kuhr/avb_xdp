@@ -24,7 +24,7 @@
 struct bpf_map_def SEC("maps") xdp_stats_map = {
 	.type        = BPF_MAP_TYPE_ARRAY,
 	.key_size    = sizeof(__u32),
-	.value_size  = sizeof(struct datarec),
+	.value_size  = sizeof(datarec_t),
 	.max_entries = XDP_ACTION_MAX,
 };
 
@@ -100,7 +100,7 @@ int  xdp_avtp_func(struct xdp_md *ctx)
 	void *data_end = (void *)(long)ctx->data_end;
 	void *data = (void *)(long)ctx->data;
 	eth_headerQ_t *eth;
-	struct datarec *rec;
+	datarec_t *rec;
 	__u32 key = XDP_PASS; /* XDP_PASS = 2 */
 
 	/* Lookup in kernel BPF-side return pointer to actual data record */
