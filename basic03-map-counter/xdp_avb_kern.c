@@ -1,6 +1,5 @@
 /* SPDX-License-Identifier: GPL-2.0 */
 #include <stddef.h>
-
 #include <linux/bpf.h>
 #include <linux/in.h>
 #include <linux/if_ether.h>
@@ -10,17 +9,11 @@
 #include "bpf_helpers.h"
 #include "bpf_endian.h"
 
-
-#include "../common/xdp_stats_kern_user.h"
-#include "../common/xdp_stats_kern.h"
-
 #include "avb_avtp.h"
-
 #include "common_kern_user.h" /* defines: struct datarec; */
 
 
-/* Lesson#1: See how a map is defined.
- * - Here an array with XDP_ACTION_MAX (max_)entries are created.
+/* - Here an array with XDP_ACTION_MAX (max_)entries are created.
  * - The idea is to keep stats per (enum) xdp_action
  */
 struct bpf_map_def SEC("maps") xdp_stats_map2 = {
@@ -36,7 +29,6 @@ struct hdr_cursor {
 };
 
 /* Packet parsing helpers.
- *
  * Each helper parses a packet header, including doing bounds checking, and
  * returns the type of its contents if successful, and -1 otherwise..
  */
@@ -117,7 +109,7 @@ int  xdp_avtp_func(struct xdp_md *ctx)
 	nh.pos = data;
 
 	nh_type = parse_ethhdr(&nh, data_end, &eth);
-    if( nh_type == bpf_htons(ETH_P_TSN) ){ //
+    if( nh_type == bpf_htons(ETH_P_TSN) ){
         if( __builtin_memcmp(listen_dst_mac, eth->h_dest, 6 ) == 0 ){
             seventeen22_header_t *hdr1722;
             __u8 proto1722 = parse_1722hdr(&nh, data_end, &hdr1722);

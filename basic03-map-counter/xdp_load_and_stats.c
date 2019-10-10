@@ -53,7 +53,6 @@ int find_map_fd(struct bpf_object *bpf_obj, const char *mapname)
 	struct bpf_map *map;
 	int map_fd = -1;
 
-	/* Lesson#3: bpf_object to bpf_map */
 	map = bpf_object__find_map_by_name(bpf_obj, mapname);
         if (!map) {
 		fprintf(stderr, "ERR: cannot find map by name: %s\n", mapname);
@@ -81,11 +80,11 @@ static __u64 gettime(void)
 
 struct record {
 	__u64 timestamp;
-	struct datarecCustom total; /* defined in common_kern_user.h */
+	struct datarecCustom total;
 };
 
 struct stats_record {
-	struct record stats[1]; /* Assignment#2: Hint */
+	struct record stats[1];
 };
 
 static double calc_period(struct record *r, struct record *p)
@@ -108,7 +107,6 @@ static void stats_print(struct stats_record *stats_rec,
 	__u64 packets;
 	double pps; /* packets per sec */
 
-	/* Assignment#2: Print other XDP actions stats  */
 	{
 		char *fmt = "%-12s %'11lld pkts - %'11lld timestamp - %'11lld sample sample - %'11lld counter - (%'10.0f pps)  period:%f\n";
 		const char *action = action2str(XDP_PASS);
@@ -165,7 +163,7 @@ static bool map_collect(int fd, __u32 map_type, __u32 key, struct record *rec)
 		break;
 	}
 
-	/* Assignment#1: Add byte counters */
+
 	rec->total.rx_pkt_cnt = value.rx_pkt_cnt;
 	rec->total.accu_rx_timestamp = value.accu_rx_timestamp;
 	rec->total.sampleCounter = value.sampleCounter;
@@ -177,7 +175,6 @@ static bool map_collect(int fd, __u32 map_type, __u32 key, struct record *rec)
 static void stats_collect(int map_fd, __u32 map_type,
 			  struct stats_record *stats_rec)
 {
-	/* Assignment#2: Collect other XDP actions stats  */
 	__u32 key = XDP_PASS;
 
 	map_collect(map_fd, map_type, key, &stats_rec->stats[0]);
@@ -205,10 +202,6 @@ static void stats_poll(int map_fd, __u32 map_type, int interval)
 	}
 }
 
-/* Lesson#4: It is userspace responsibility to known what map it is reading and
- * know the value size. Here get bpf_map_info and check if it match our expected
- * values.
- */
 static int __check_map_fd_info(int map_fd, struct bpf_map_info *info,
 			       struct bpf_map_info *exp)
 {
@@ -296,14 +289,12 @@ int main(int argc, char **argv)
 		       cfg.ifname, cfg.ifindex);
 	}
 
-	/* Lesson#3: Locate map file descriptor */
 	stats_map_fd = find_map_fd(bpf_obj, "xdp_stats_map2");
 	if (stats_map_fd < 0) {
 		xdp_link_detach(cfg.ifindex, cfg.xdp_flags, 0);
 		return EXIT_FAIL_BPF;
 	}
 
-	/* Lesson#4: check map info, e.g. datarecCustom is expected size */
 	map_expect.key_size    = sizeof(__u32);
 	map_expect.value_size  = sizeof(struct datarecCustom);
 	map_expect.max_entries = XDP_ACTION_MAX;

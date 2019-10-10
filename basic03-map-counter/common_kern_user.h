@@ -13,7 +13,6 @@ struct datarecCustom {
 	__u32 rx_pkt_cnt;
 	int sampleCounter;
 	int sampleBuffer[AUDIO_CHANNELS][SAMPLEBUF_SIZE+SAMPLEBUF_SIZE/4];
-	/* Assignment#1: Add byte counters */
 };
 
 #ifndef XDP_ACTION_MAX
