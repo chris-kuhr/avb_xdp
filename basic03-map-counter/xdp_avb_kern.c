@@ -161,7 +161,7 @@ int  xdp_avtp_func(struct xdp_md *ctx)
                 } else {
                     return XDP_DROP;
                 }
-            }
+//            }
         }
     }
     return XDP_PASS;
