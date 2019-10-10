@@ -12,7 +12,7 @@ struct datarecCustom {
 	__u64 accu_rx_timestamp;
 	__u32 rx_pkt_cnt;
 	int sampleCounter;
-	float sampleBuffer[AUDIO_CHANNELS][SAMPLEBUF_SIZE+SAMPLEBUF_SIZE/4];
+	int sampleBuffer[AUDIO_CHANNELS][SAMPLEBUF_SIZE+SAMPLEBUF_SIZE/4];
 	/* Assignment#1: Add byte counters */
 };
 

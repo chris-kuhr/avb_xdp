@@ -133,10 +133,9 @@ int  xdp_avtp_func(struct xdp_md *ctx)
                 for(i=0; i<6*AUDIO_CHANNELS;i+=AUDIO_CHANNELS){
                     #pragma unroll
                     for(j=0; j<AUDIO_CHANNELS;j++){
-                        __u32 sample = bpf_htonl(avtpSamples[i+j]);
-                        sample &= 0x00ffffff;
+                        __u32 sample = bpf_htonl(avtpSamples[i+j]) & 0x00ffffff;
                         sample <<= 8;
-                        rec->sampleBuffer[i][j] = sample;//(float)((int)sample);///(float)(2);/* use tail here */
+                        rec->sampleBuffer[i][j] = (int) sample;//(float)((int)sample);///(float)(2);/* use tail here */
                         lock_xadd(&rec->sampleCounter, 1);
                     }
                 }
