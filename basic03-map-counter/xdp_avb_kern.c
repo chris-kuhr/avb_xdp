@@ -142,9 +142,9 @@ int  xdp_avtp_func(struct xdp_md *ctx)
 
                 int i,j;
                 #pragma unroll
-                for(i=0; i<6*audioChannels;i+=audioChannels){
+                for(i=0; i<6*AUDIO_CHANNELS;i+=AUDIO_CHANNELS){
                     #pragma unroll
-                    for(j=0; j<audioChannels;j++){
+                    for(j=0; j<AUDIO_CHANNELS;j++){
                         __u32 sample = bpf_htonl(avtpSamples[i+j]);
                         sample &= 0x00ffffff;
                         sample <<= 8;
