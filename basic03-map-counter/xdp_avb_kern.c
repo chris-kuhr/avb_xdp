@@ -66,25 +66,25 @@ static __always_inline __u16 parse_ethhdr(struct hdr_cursor *nh,
 
 	return eth->h_protocol ; /* network-byte-order */
 }
-
-static __always_inline __u8 parse_1722hdr(struct hdr_cursor *nh,
-					void *data_end, seventeen22_header_t **hdr1722)
-{
-    seventeen22_header_t *tmp_hdr1722 = nh->pos;
-	int hdrsize = sizeof(*tmp_hdr1722);
-
-	/* Byte-count bounds check; check if current pointer + size of header
-	 * is after data_end.
-	 */
-	if (nh->pos + hdrsize > data_end)
-		return -1;
-
-	nh->pos += hdrsize;
-	*hdr1722 = tmp_hdr1722;
-
-	return tmp_hdr1722->subtype_cd & 0x7F; /* network-byte-order */
-}
-
+//
+//static __always_inline __u8 parse_1722hdr(struct hdr_cursor *nh,
+//					void *data_end, seventeen22_header_t **hdr1722)
+//{
+//    seventeen22_header_t *tmp_hdr1722 = nh->pos;
+//	int hdrsize = sizeof(*tmp_hdr1722);
+//
+//	/* Byte-count bounds check; check if current pointer + size of header
+//	 * is after data_end.
+//	 */
+//	if (nh->pos + hdrsize > data_end)
+//		return -1;
+//
+//	nh->pos += hdrsize;
+//	*hdr1722 = tmp_hdr1722;
+//
+//	return tmp_hdr1722->subtype_cd & 0x7F; /* network-byte-order */
+//}
+//
 //static __always_inline __u8 parse_61883hdr(struct hdr_cursor *nh,
 //					void *data_end, six1883_header_t **hdr61883)
 //{
@@ -132,10 +132,10 @@ int  xdp_avtp_func(struct xdp_md *ctx)
 	nh_type = parse_ethhdr(&nh, data_end, &eth);
     if( nh_type == bpf_htons(ETHER_TYPE_AVTP) ){
         if( __builtin_memcmp(listen_dst_mac, eth->h_dest, 6 ) == 0 ){
-            seventeen22_header_t *hdr1722;
-            __u8 proto1722 = parse_1722hdr(&nh, data_end, &hdr1722);
-            if( bpf_htons(proto1722) == 0x00
-                        && __builtin_memcmp(listen_stream_id, hdr1722->stream_id, 8) == 0){ /* 1722-AVTP & StreamId */
+//            seventeen22_header_t *hdr1722;
+//            __u8 proto1722 = parse_1722hdr(&nh, data_end, &hdr1722);
+//            if( bpf_htons(proto1722) == 0x00
+//                        && __builtin_memcmp(listen_stream_id, hdr1722->stream_id, 8) == 0){ /* 1722-AVTP & StreamId */
 //                six1883_header_t *hdr61883;
 //                //__u8 audioChannels =
 //                parse_61883hdr(&nh, data_end, &hdr61883);
