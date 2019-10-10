@@ -274,7 +274,7 @@ int main(int argc, char **argv)
 	/* Cmdline options can change progsec */
 	parse_cmdline_args(argc, argv, long_options, &cfg, __doc__);
 
-	printf( ((1U << ((sizeof(int)*8)-1))-1) );
+	//printf( ((1U << ((sizeof(int)*8)-1))-1) );
 
 	/* Required option */
 	if (cfg.ifindex == -1) {
