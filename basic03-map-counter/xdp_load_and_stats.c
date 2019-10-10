@@ -81,7 +81,7 @@ static __u64 gettime(void)
 
 struct record {
 	__u64 timestamp;
-	struct datarecCustom total;
+	struct datarec total;
 };
 
 struct stats_record {
@@ -146,7 +146,7 @@ void map_get_value_percpu_array(int fd, __u32 key, struct datarecCustom *value)
 
 static bool map_collect(int fd, __u32 map_type, __u32 key, struct record *rec)
 {
-	struct datarecCustom value;
+	struct datarec value;
 
 	/* Get time as close as possible to reading map contents */
 	rec->timestamp = gettime();
