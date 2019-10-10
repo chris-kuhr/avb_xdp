@@ -16,10 +16,12 @@
 #include "../common/xdp_stats_kern_user.h"
 #include "../common/xdp_stats_kern.h"
 
-
-
+#include "avb_avtp.h"
 
 #include "common_kern_user.h" /* defines: struct datarec; */
+static unsigned char listen_dst_mac[6] = {0x00, 0x00,0x00, 0x00,0x00, 0x00}
+static __u64  listen_stream_id = {0x00, 0x00,0x00, 0x00,0x00, 0x00}
+
 
 /* Lesson#1: See how a map is defined.
  * - Here an array with XDP_ACTION_MAX (max_)entries are created.
@@ -47,10 +49,9 @@ struct hdr_cursor {
  * All return values are in host byte order.
  */
 static __always_inline int parse_ethhdr(struct hdr_cursor *nh,
-					void *data_end,
-					struct ethhdr **ethhdr)
+					void *data_end, struct eth_headerQ **ethhdr)
 {
-	struct ethhdr *eth = nh->pos;
+	struct eth_headerQ *eth = nh->pos;
 	int hdrsize = sizeof(*eth);
 
 	/* Byte-count bounds check; check if current pointer + size of header
@@ -65,12 +66,11 @@ static __always_inline int parse_ethhdr(struct hdr_cursor *nh,
 	return eth->h_proto; /* network-byte-order */
 }
 
-static __always_inline unsigned char parse_iphdr(struct hdr_cursor *nh,
-					void *data_end,
-					struct iphdr **ipheader)
+static __always_inline unsigned char parse_1722hdr(struct hdr_cursor *nh,
+					void *data_end, struct seventeen22_header **hdr1722)
 {
-	struct iphdr *ip = nh->pos;
-	int hdrsize = sizeof(*ip);
+	struct seventeen22_header *tmp_hdr1722 = nh->pos;
+	int hdrsize = sizeof(*tmp_hdr1722);
 
 	/* Byte-count bounds check; check if current pointer + size of header
 	 * is after data_end.
@@ -79,9 +79,27 @@ static __always_inline unsigned char parse_iphdr(struct hdr_cursor *nh,
 		return -1;
 
 	nh->pos += hdrsize;
-	*ipheader = ip;
+	*hdr1722 = tmp_hdr1722;
 
-	return ip->protocol; /* network-byte-order */
+	return tmp_hdr1722->subtype; /* network-byte-order */
+}
+
+static __always_inline unsigned char parse_61883hdr(struct hdr_cursor *nh,
+					void *data_end, struct six1883_header **hdr61883)
+{
+	struct six1883_header *tmp_hdr61883 = nh->pos;
+	int hdrsize = sizeof(*tmp_hdr61883);
+
+	/* Byte-count bounds check; check if current pointer + size of header
+	 * is after data_end.
+	 */
+	if (nh->pos + hdrsize > data_end)
+		return -1;
+
+	nh->pos += hdrsize;
+	*hdr61883 = tmp_hdr61883;
+
+	return tmp_hdr61883->data_block_size; /* network-byte-order */
 }
 
 /* LLVM maps __sync_fetch_and_add() as a built-in function to the BPF atomic add
@@ -96,20 +114,13 @@ int  xdp_avtp_func(struct xdp_md *ctx)
 {
 	void *data_end = (void *)(long)ctx->data_end;
 	void *data = (void *)(long)ctx->data;
-	struct ethhdr *eth;
+	struct eth_headerQ *eth;
 	struct datarecCustom *rec;
 	__u32 key = XDP_PASS; /* XDP_PASS = 2 */
 
 	/* Lookup in kernel BPF-side return pointer to actual data record */
 	rec = bpf_map_lookup_elem(&xdp_stats_map2, &key);
-	/* BPF kernel-side verifier will reject program if the NULL pointer
-	 * check isn't performed here. Even-though this is a static array where
-	 * we know key lookup XDP_PASS always will succeed.
-	 */
-	if (!rec)
-		return XDP_ABORTED;
-
-
+	if (!rec) return XDP_ABORTED;
 
 	struct hdr_cursor nh;
 	int nh_type;
@@ -117,44 +128,37 @@ int  xdp_avtp_func(struct xdp_md *ctx)
 	/* Start next header cursor position at data start */
 	nh.pos = data;
 
-	/* Packet parsing in steps: Get each header one at a time, aborting if
-	 * parsing fails. Each helper function does sanity checking (is the
-	 * header type in the packet correct?), and bounds checking.
-	 */
 	nh_type = parse_ethhdr(&nh, data_end, &eth);
+    if( nh_type == bpf_htons(ETHER_TYPE_AVTP) ){
+        if( memcmp(listen_dst_mac, eth->h_dest, 6 ) == 0 ){
+            struct seventeen22_header *hdr1722;
+            unsigned char proto1722 = parse_1722hdr(&nh, data_end, &hdr1722);
+            rec->accu_rx_timestamp = proto1722;
+            if( proto1722 == 0x00 && memcmp(listen_stream_id, hdr1722->stream_id, ) == 0){ /* 1722-AVTP & StreamId */
+                struct six1883_sample *hdr61883;
+                unsigned char audioChannels = parse_61883hdr(&nh, data_end, &hdr61883);
+                    __u32 *avptSamples = (__u32*)nh.pos;
 
-    if( nh_type == bpf_htons(ETH_P_IP) ){ //ETH_P_TSN = 0x22f0
-        struct iphdr *ipheader;
-        unsigned char ip_proto_type = parse_iphdr(&nh, data_end, &ipheader);
-        rec->accu_rx_timestamp = ip_proto_type;
+                    int i,j;
+                    #pragma unroll
+                    for(i=0; i<6*audioChannels;i+=audioChannels){
+                        #pragma unroll
+                        for(j=0; j<audioChannels;j++){
+                            _u32 sample = ntohl(avptSamples[i+j]);
+                            sample &= 0x00ffffff;
+                            sample <<= 8;
+                            rec->sampleBuffer[i][j] = ((__int32_t)frame[j])/(float)(MAX_SAMPLE_VALUE);/* use tail here */
+                            lock_xadd(&rec->sampleCounter, 1);
+                        }
+                    }
 
-        if( ip_proto_type == IPPROTO_ICMP ){
-            /* Multiple CPUs can access data record. Thus, the accounting needs to
-             * use an atomic operation.
-             */
-            lock_xadd(&rec->counter, 1);
-
-            int i,j;
-            #pragma unroll
-            for(i=0; i<AUDIO_CHANNELS;i++){
-                #pragma unroll
-                for(j=0; j<SAMPLEBUF_SIZE;j++){
-                    rec->sampleBuffer[i][j] = j;
+                    lock_xadd(&rec->rx_pkt_cnt, 1);
+                    if( rec->counter % SAMPLEBUF_SIZE == 0 ){
+                        return XDP_PASS;
+                    } else {
+                        return XDP_DROP;
+                    }
                 }
-            }
-
-            /* Assignment#1: Add byte counters
-             * - Hint look at struct xdp_md *ctx (copied below)
-             *
-             * Assignment#3: Avoid the atomic operation
-             * - Hint there is a map type named BPF_MAP_TYPE_PERCPU_ARRAY
-             */
-            /* These keep track of the next header type and iterator pointer */
-            if( rec->counter % 32 == 0 ){
-                rec->rx_packets = rec->counter;
-                return XDP_PASS;
-            } else {
-                return XDP_DROP;
             }
         }
     }
@@ -192,3 +196,56 @@ struct xdp_md {
 	__u32 rx_queue_index;  // rxq->queue_index
 };
 */
+
+
+
+/* user accessible mirror of in-kernel sk_buff.
+ * new fields can only be added to the end of this structure
+ */
+//struct __sk_buff {
+//	__u32 len;
+//	__u32 pkt_type;
+//	__u32 mark;
+//	__u32 queue_mapping;
+//	__u32 protocol;
+//	__u32 vlan_present;
+//	__u32 vlan_tci;
+//	__u32 vlan_proto;
+//	__u32 priority;
+//	__u32 ingress_ifindex;
+//	__u32 ifindex;
+//	__u32 tc_index;
+//	__u32 cb[5];
+//	__u32 hash;
+//	__u32 tc_classid;
+//	__u32 data;
+//	__u32 data_end;
+//	__u32 napi_id;
+//
+//	/* Accessed by BPF_PROG_TYPE_sk_skb types from here to ... */
+//	__u32 family;
+//	__u32 remote_ip4;	/* Stored in network byte order */
+//	__u32 local_ip4;	/* Stored in network byte order */
+//	__u32 remote_ip6[4];	/* Stored in network byte order */
+//	__u32 local_ip6[4];	/* Stored in network byte order */
+//	__u32 remote_port;	/* Stored in network byte order */
+//	__u32 local_port;	/* stored in host byte order */
+//	/* ... here. */
+//
+//	__u32 data_meta;
+//	__bpf_md_ptr(struct bpf_flow_keys *, flow_keys);
+
+
+
+
+//	__u64 tstamp;
+
+
+
+
+//	__u32 wire_len;
+//	__u32 gso_segs;
+//	__bpf_md_ptr(struct bpf_sock *, sk);
+//};
+
+

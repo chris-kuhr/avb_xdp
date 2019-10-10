@@ -4,15 +4,15 @@
 #ifndef __COMMON_KERN_USER_H
 #define __COMMON_KERN_USER_H
 
-#define AUDIO_CHANNELS 16
-#define SAMPLEBUF_SIZE 160
+#define AUDIO_CHANNELS 2
+#define SAMPLEBUF_SIZE 128
 
 /* This is the data record stored in the map */
 struct datarecCustom {
-	__u64 counter;
-	__u64 rx_packets;
 	__u64 accu_rx_timestamp;
-	__u32 sampleBuffer[AUDIO_CHANNELS][SAMPLEBUF_SIZE];
+	__u32 rx_pkt_cnt;
+	__int32_t sampleCounter;
+	__int32_t sampleBuffer[AUDIO_CHANNELS][SAMPLEBUF_SIZE+SAMPLEBUF_SIZE/4];
 	/* Assignment#1: Add byte counters */
 };
 

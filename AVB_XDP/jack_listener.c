@@ -90,11 +90,11 @@ int receive_avtp_packet(  )
     msg.msg_control = &control;
     msg.msg_controllen = sizeof(control);
 
-    
+
     /*
-     *  Check eth type 
+     *  Check eth type
      */
-    if( ethertype = 0x22f0 )
+    if( ethertype == 0x22f0 )
     {
         /*
          *  Check destination mac
@@ -115,7 +115,7 @@ int receive_avtp_packet(  )
                 (glob_stream_id[7] == (uint8_t) stream_packet[25])
             ){
             /*
-             *  Count Packets with Sequence Id untill period size, then 
+             *  Count Packets with Sequence Id untill period size, then
              *  rewrite and pass packet
              */
 
@@ -147,11 +147,11 @@ int receive_avtp_packet(  )
                 } else {
                     adjust_packet_time_ns = (*avb_ctx)->adjust ? rx_int_to_last_packet_ns : 125000;
                 }
-                
-                
-                
-                
-                
+
+
+
+
+
                 /*
                  *  Deinterleave and Store samples
                  */
@@ -171,7 +171,7 @@ int receive_avtp_packet(  )
                     }
 
                 }
-                
+
                 return adjust_packet_time_ns -1000;
             }
         }
