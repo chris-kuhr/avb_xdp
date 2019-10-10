@@ -1,7 +1,6 @@
 #ifndef __AVB_AVTP_H__
 #define __AVB_AVTP_H__
 
-#include <inttypes.h>
 
 #define MAX_SAMPLE_VALUE ((1U << ((sizeof(int32_t)*8)-1))-1)
 
