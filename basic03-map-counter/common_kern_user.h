@@ -13,7 +13,7 @@ struct datarec{
 	__u32 rx_pkt_cnt;
 	int sampleCounter;
 	int sampleBuffer[AUDIO_CHANNELS][SAMPLEBUF_SIZE+SAMPLEBUF_SIZE/4];
-}datarec_t;
+};
 
 #ifndef XDP_ACTION_MAX
 #define XDP_ACTION_MAX (XDP_REDIRECT + 1)
