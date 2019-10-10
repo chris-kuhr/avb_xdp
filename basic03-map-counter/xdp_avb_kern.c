@@ -1,5 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0 */
 #include <stddef.h>
+
 #include <linux/bpf.h>
 #include <linux/in.h>
 #include <linux/if_ether.h>
@@ -63,7 +64,7 @@ static __always_inline int parse_ethhdr(struct hdr_cursor *nh,
 	nh->pos += hdrsize;
 	*ethhdr = eth;
 
-	return eth->h_proto; /* network-byte-order */
+	return eth->h_protocol; /* network-byte-order */
 }
 
 static __always_inline unsigned char parse_1722hdr(struct hdr_cursor *nh,
@@ -81,7 +82,7 @@ static __always_inline unsigned char parse_1722hdr(struct hdr_cursor *nh,
 	nh->pos += hdrsize;
 	*hdr1722 = tmp_hdr1722;
 
-	return tmp_hdr1722->subtype; /* network-byte-order */
+	return tmp_hdr1722->subtype_cd & 0x7F; /* network-byte-order */
 }
 
 static __always_inline unsigned char parse_61883hdr(struct hdr_cursor *nh,
@@ -130,21 +131,21 @@ int  xdp_avtp_func(struct xdp_md *ctx)
 
 	nh_type = parse_ethhdr(&nh, data_end, &eth);
     if( nh_type == bpf_htons(ETHER_TYPE_AVTP) ){
-        if( memcmp(listen_dst_mac, eth->h_dest, 6 ) == 0 ){
+        if( __builtin_memcmp(listen_dst_mac, eth->h_dest, 6 ) == 0 ){
             seventeen22_header_t *hdr1722;
-            unsigned char proto1722 = parse_1722hdr(&nh, data_end, &hdr1722);
-            rec->accu_rx_timestamp = proto1722;
-            if( proto1722 == 0x00 && memcmp(listen_stream_id, hdr1722->stream_id, ) == 0){ /* 1722-AVTP & StreamId */
+            __u8 proto1722 = parse_1722hdr(&nh, data_end, &hdr1722);
+            if( bpf_htons(proto1722) == 0x00
+                        && __builtin_memcmp(listen_stream_id, hdr1722->stream_id, 8) == 0){ /* 1722-AVTP & StreamId */
                 six1883_header_t *hdr61883;
                 unsigned char audioChannels = parse_61883hdr(&nh, data_end, &hdr61883);
-                    __u32 *avptSamples = (__u32*)nh.pos;
+                    __u32 *avtpSamples = (__u32*)nh.pos;
 
                     int i,j;
                     #pragma unroll
                     for(i=0; i<6*audioChannels;i+=audioChannels){
                         #pragma unroll
                         for(j=0; j<audioChannels;j++){
-                            _u32 sample = ntohl(avptSamples[i+j]);
+                            __u32 sample = bpf_htonl(avtpSamples[i+j]);
                             sample &= 0x00ffffff;
                             sample <<= 8;
                             rec->sampleBuffer[i][j] = ((int)frame[j])/(float)(MAX_SAMPLE_VALUE);/* use tail here */
@@ -154,6 +155,7 @@ int  xdp_avtp_func(struct xdp_md *ctx)
 
                     lock_xadd(&rec->rx_pkt_cnt, 1);
                     if( rec->counter % SAMPLEBUF_SIZE == 0 ){
+                        rec->accu_rx_timestamp = 0x123456789;
                         return XDP_PASS;
                     } else {
                         return XDP_DROP;
