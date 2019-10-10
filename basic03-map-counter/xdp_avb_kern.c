@@ -21,10 +21,10 @@
 /* - Here an array with XDP_ACTION_MAX (max_)entries are created.
  * - The idea is to keep stats per (enum) xdp_action
  */
-struct bpf_map_def SEC("maps") xdp_stats_map2 = {
+struct bpf_map_def SEC("maps") xdp_stats_map = {
 	.type        = BPF_MAP_TYPE_ARRAY,
 	.key_size    = sizeof(__u32),
-	.value_size  = sizeof(struct datarecCustom),
+	.value_size  = sizeof(struct datarec),
 	.max_entries = XDP_ACTION_MAX,
 };
 
@@ -100,11 +100,11 @@ int  xdp_avtp_func(struct xdp_md *ctx)
 	void *data_end = (void *)(long)ctx->data_end;
 	void *data = (void *)(long)ctx->data;
 	eth_headerQ_t *eth;
-	struct datarecCustom *rec;
+	struct datarec *rec;
 	__u32 key = XDP_PASS; /* XDP_PASS = 2 */
 
 	/* Lookup in kernel BPF-side return pointer to actual data record */
-	rec = bpf_map_lookup_elem(&xdp_stats_map2, &key);
+	rec = bpf_map_lookup_elem(&xdp_stats_map, &key);
 	if (!rec) return XDP_ABORTED;
 
 	struct hdr_cursor nh;

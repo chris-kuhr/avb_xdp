@@ -290,14 +290,14 @@ int main(int argc, char **argv)
 		       cfg.ifname, cfg.ifindex);
 	}
 
-	stats_map_fd = find_map_fd(bpf_obj, "xdp_stats_map2");
+	stats_map_fd = find_map_fd(bpf_obj, "xdp_stats_map");
 	if (stats_map_fd < 0) {
 		xdp_link_detach(cfg.ifindex, cfg.xdp_flags, 0);
 		return EXIT_FAIL_BPF;
 	}
 
 	map_expect.key_size    = sizeof(__u32);
-	map_expect.value_size  = sizeof(struct datarecCustom);
+	map_expect.value_size  = sizeof(struct datarec);
 	map_expect.max_entries = XDP_ACTION_MAX;
 	err = __check_map_fd_info(stats_map_fd, &info, &map_expect);
 	if (err) {

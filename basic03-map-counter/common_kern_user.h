@@ -8,7 +8,7 @@
 #define SAMPLEBUF_SIZE 128
 
 /* This is the data record stored in the map */
-struct datarecCustom {
+struct datarec{
 	__u64 accu_rx_timestamp;
 	__u32 rx_pkt_cnt;
 	int sampleCounter;
