@@ -41,7 +41,7 @@ typedef struct six1883_header {
 	__u8 reserved1_sph_qpadding_count_fracnum;
 	__u8 data_block_continuity;
 	__u8 format_id_eoh;
-	__u8 format_dependent_field:8;
+	__u8 format_dependent_field;
 	__u8 syt[2];
 } six1883_header_t;
 

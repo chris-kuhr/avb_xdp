@@ -49,7 +49,7 @@ struct hdr_cursor {
  * (h_proto for Ethernet, nexthdr for IPv6), for ICMP it is the ICMP type field.
  * All return values are in host byte order.
  */
-static __always_inline int parse_ethhdr(struct hdr_cursor *nh,
+static __always_inline __u16 parse_ethhdr(struct hdr_cursor *nh,
 					void *data_end, eth_headerQ_t **ethhdr)
 {
 	eth_headerQ_t *eth = nh->pos;
@@ -67,7 +67,7 @@ static __always_inline int parse_ethhdr(struct hdr_cursor *nh,
 	return eth->h_protocol; /* network-byte-order */
 }
 
-static __always_inline unsigned char parse_1722hdr(struct hdr_cursor *nh,
+static __always_inline __u8 parse_1722hdr(struct hdr_cursor *nh,
 					void *data_end, seventeen22_header_t **hdr1722)
 {
     seventeen22_header_t *tmp_hdr1722 = nh->pos;
@@ -85,7 +85,7 @@ static __always_inline unsigned char parse_1722hdr(struct hdr_cursor *nh,
 	return tmp_hdr1722->subtype_cd & 0x7F; /* network-byte-order */
 }
 
-static __always_inline unsigned char parse_61883hdr(struct hdr_cursor *nh,
+static __always_inline __u8 parse_61883hdr(struct hdr_cursor *nh,
 					void *data_end, six1883_header_t **hdr61883)
 {
 	six1883_header_t *tmp_hdr61883 = nh->pos;
@@ -137,29 +137,28 @@ int  xdp_avtp_func(struct xdp_md *ctx)
             if( bpf_htons(proto1722) == 0x00
                         && __builtin_memcmp(listen_stream_id, hdr1722->stream_id, 8) == 0){ /* 1722-AVTP & StreamId */
                 six1883_header_t *hdr61883;
-                unsigned char audioChannels = parse_61883hdr(&nh, data_end, &hdr61883);
-                    __u32 *avtpSamples = (__u32*)nh.pos;
+                __u8 audioChannels = parse_61883hdr(&nh, data_end, &hdr61883);
+                __u32 *avtpSamples = (__u32*)nh.pos;
 
-                    int i,j;
+                int i,j;
+                #pragma unroll
+                for(i=0; i<6*audioChannels;i+=audioChannels){
                     #pragma unroll
-                    for(i=0; i<6*audioChannels;i+=audioChannels){
-                        #pragma unroll
-                        for(j=0; j<audioChannels;j++){
-                            __u32 sample = bpf_htonl(avtpSamples[i+j]);
-                            sample &= 0x00ffffff;
-                            sample <<= 8;
-                            rec->sampleBuffer[i][j] = ((int)frame[j])/(float)(MAX_SAMPLE_VALUE);/* use tail here */
-                            lock_xadd(&rec->sampleCounter, 1);
-                        }
+                    for(j=0; j<audioChannels;j++){
+                        __u32 sample = bpf_htonl(avtpSamples[i+j]);
+                        sample &= 0x00ffffff;
+                        sample <<= 8;
+                        rec->sampleBuffer[i][j] = ((int)frame[j])/(float)(MAX_SAMPLE_VALUE);/* use tail here */
+                        lock_xadd(&rec->sampleCounter, 1);
                     }
+                }
 
-                    lock_xadd(&rec->rx_pkt_cnt, 1);
-                    if( rec->counter % SAMPLEBUF_SIZE == 0 ){
-                        rec->accu_rx_timestamp = 0x123456789;
-                        return XDP_PASS;
-                    } else {
-                        return XDP_DROP;
-                    }
+                lock_xadd(&rec->rx_pkt_cnt, 1);
+                if( rec->counter % SAMPLEBUF_SIZE == 0 ){
+                    rec->accu_rx_timestamp = 0x123456789;
+                    return XDP_PASS;
+                } else {
+                    return XDP_DROP;
                 }
             }
         }
