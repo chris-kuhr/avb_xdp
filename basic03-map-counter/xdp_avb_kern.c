@@ -147,7 +147,7 @@ int  xdp_avtp_func(struct xdp_md *ctx)
                             _u32 sample = ntohl(avptSamples[i+j]);
                             sample &= 0x00ffffff;
                             sample <<= 8;
-                            rec->sampleBuffer[i][j] = ((__int32_t)frame[j])/(float)(MAX_SAMPLE_VALUE);/* use tail here */
+                            rec->sampleBuffer[i][j] = ((int)frame[j])/(float)(MAX_SAMPLE_VALUE);/* use tail here */
                             lock_xadd(&rec->sampleCounter, 1);
                         }
                     }
