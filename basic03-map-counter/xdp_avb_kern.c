@@ -11,17 +11,14 @@
 #include "bpf_endian.h"
 
 
-
-
-/* Defines xdp_stats_map from packet04 */
 #include "../common/xdp_stats_kern_user.h"
 #include "../common/xdp_stats_kern.h"
 
 #include "avb_avtp.h"
 
 #include "common_kern_user.h" /* defines: struct datarec; */
-static __u8 listen_dst_mac[6] = {0x00, 0x00,0x00, 0x00,0x00, 0x00};
-static __u8  listen_stream_id[8] = {0x00, 0x00,0x00, 0x00,0x00, 0x00};
+static __u8 listen_dst_mac[6] =     {0x00,0x00,0x00,0x00,0x00,0x00};
+static __u8 listen_stream_id[8] =   {0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00};
 
 
 /* Lesson#1: See how a map is defined.
@@ -43,11 +40,7 @@ struct hdr_cursor {
 /* Packet parsing helpers.
  *
  * Each helper parses a packet header, including doing bounds checking, and
- * returns the type of its contents if successful, and -1 otherwise.
- *
- * For Ethernet and IP headers, the content type is the type of the payload
- * (h_proto for Ethernet, nexthdr for IPv6), for ICMP it is the ICMP type field.
- * All return values are in host byte order.
+ * returns the type of its contents if successful, and -1 otherwise..
  */
 static __always_inline __u16 parse_ethhdr(struct hdr_cursor *nh,
 					void *data_end, eth_headerQ_t **ethhdr)
@@ -55,9 +48,6 @@ static __always_inline __u16 parse_ethhdr(struct hdr_cursor *nh,
 	eth_headerQ_t *eth = nh->pos;
 	int hdrsize = sizeof(*eth);
 
-	/* Byte-count bounds check; check if current pointer + size of header
-	 * is after data_end.
-	 */
 	if (nh->pos + hdrsize > data_end)
 		return -1;
 
@@ -73,9 +63,6 @@ static __always_inline __u8 parse_1722hdr(struct hdr_cursor *nh,
     seventeen22_header_t *tmp_hdr1722 = nh->pos;
 	int hdrsize = sizeof(*tmp_hdr1722);
 
-	/* Byte-count bounds check; check if current pointer + size of header
-	 * is after data_end.
-	 */
 	if (nh->pos + hdrsize > data_end)
 		return -1;
 
@@ -135,7 +122,7 @@ int  xdp_avtp_func(struct xdp_md *ctx)
             seventeen22_header_t *hdr1722;
             __u8 proto1722 = parse_1722hdr(&nh, data_end, &hdr1722);
             if( bpf_htons(proto1722) == 0x00
-                        && __builtin_memcmp(hdr1722->stream_id, listen_stream_id, 8) == 0){ /* 1722-AVTP & StreamId */
+                        && __builtin_memcmp(listen_stream_id, hdr1722->stream_id, 8) == 0){ /* 1722-AVTP & StreamId */
                 six1883_header_t *hdr61883;
                 //__u8 audioChannels =
                 parse_61883hdr(&nh, data_end, &hdr61883);
