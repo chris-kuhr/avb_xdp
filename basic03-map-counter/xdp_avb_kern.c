@@ -21,7 +21,7 @@
 
 #include "common_kern_user.h" /* defines: struct datarec; */
 static __u8 listen_dst_mac[6] = {0x00, 0x00,0x00, 0x00,0x00, 0x00};
-//static __u8  listen_stream_id[8] = {0x00, 0x00,0x00, 0x00,0x00, 0x00};
+static __u8  listen_stream_id[8] = {0x00, 0x00,0x00, 0x00,0x00, 0x00};
 
 
 /* Lesson#1: See how a map is defined.
@@ -134,8 +134,8 @@ int  xdp_avtp_func(struct xdp_md *ctx)
         if( __builtin_memcmp(listen_dst_mac, eth->h_dest, 6 ) == 0 ){
             seventeen22_header_t *hdr1722;
             __u8 proto1722 = parse_1722hdr(&nh, data_end, &hdr1722);
-            if( bpf_htons(proto1722) == 0x00 ){
-//                        && __builtin_memcmp(listen_stream_id, hdr1722->stream_id, 8) == 0){ /* 1722-AVTP & StreamId */
+            if( bpf_htons(proto1722) == 0x00
+                        && __builtin_memcmp(listen_stream_id, hdr1722->stream_id, 8) == 0){ /* 1722-AVTP & StreamId */
 //                six1883_header_t *hdr61883;
 //                //__u8 audioChannels =
 //                parse_61883hdr(&nh, data_end, &hdr61883);
