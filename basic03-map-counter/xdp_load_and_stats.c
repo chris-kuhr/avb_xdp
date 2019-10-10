@@ -126,7 +126,7 @@ static void stats_print(struct stats_record *stats_rec,
 }
 
 /* BPF_MAP_TYPE_ARRAY */
-void map_get_value_array(int fd, __u32 key, struct datarecCustom *value)
+void map_get_value_array(int fd, __u32 key, struct datarec *value)
 {
 	if ((bpf_map_lookup_elem(fd, &key, value)) != 0) {
 		fprintf(stderr,
@@ -135,7 +135,7 @@ void map_get_value_array(int fd, __u32 key, struct datarecCustom *value)
 }
 
 /* BPF_MAP_TYPE_PERCPU_ARRAY */
-void map_get_value_percpu_array(int fd, __u32 key, struct datarecCustom *value)
+void map_get_value_percpu_array(int fd, __u32 key, struct datarec *value)
 {
 	/* For percpu maps, userspace gets a value per possible CPU */
 	// unsigned int nr_cpus = bpf_num_possible_cpus();
