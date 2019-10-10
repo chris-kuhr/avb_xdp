@@ -85,23 +85,23 @@ static __always_inline __u8 parse_1722hdr(struct hdr_cursor *nh,
 	return tmp_hdr1722->subtype_cd & 0x7F; /* network-byte-order */
 }
 
-//static __always_inline __u8 parse_61883hdr(struct hdr_cursor *nh,
-//					void *data_end, six1883_header_t **hdr61883)
-//{
-//	six1883_header_t *tmp_hdr61883 = nh->pos;
-//	int hdrsize = sizeof(*tmp_hdr61883);
-//
-//	/* Byte-count bounds check; check if current pointer + size of header
-//	 * is after data_end.
-//	 */
-//	if (nh->pos + hdrsize > data_end)
-//		return -1;
-//
-//	nh->pos += hdrsize;
-//	*hdr61883 = tmp_hdr61883;
-//
-//	return tmp_hdr61883->data_block_size; /* network-byte-order */
-//}
+static __always_inline __u8 parse_61883hdr(struct hdr_cursor *nh,
+					void *data_end, six1883_header_t **hdr61883)
+{
+	six1883_header_t *tmp_hdr61883 = nh->pos;
+	int hdrsize = sizeof(*tmp_hdr61883);
+
+	/* Byte-count bounds check; check if current pointer + size of header
+	 * is after data_end.
+	 */
+	if (nh->pos + hdrsize > data_end)
+		return -1;
+
+	nh->pos += hdrsize;
+	*hdr61883 = tmp_hdr61883;
+
+	return tmp_hdr61883->data_block_size; /* network-byte-order */
+}
 
 /* LLVM maps __sync_fetch_and_add() as a built-in function to the BPF atomic add
  * instruction (that is BPF_STX | BPF_XADD | BPF_W for word sizes)
@@ -135,24 +135,24 @@ int  xdp_avtp_func(struct xdp_md *ctx)
             seventeen22_header_t *hdr1722;
             __u8 proto1722 = parse_1722hdr(&nh, data_end, &hdr1722);
             if( bpf_htons(proto1722) == 0x00
-                        && __builtin_memcmp(listen_stream_id, hdr1722->stream_id, 8) == 0){ /* 1722-AVTP & StreamId */
-//                six1883_header_t *hdr61883;
-//                //__u8 audioChannels =
-//                parse_61883hdr(&nh, data_end, &hdr61883);
-//                __u32 *avtpSamples = (__u32*)nh.pos;
-//
-//                int i,j;
-//                #pragma unroll
-//                for(i=0; i<6*AUDIO_CHANNELS;i+=AUDIO_CHANNELS){
-//                    #pragma unroll
-//                    for(j=0; j<AUDIO_CHANNELS;j++){
-//                        __u32 sample = bpf_htonl(avtpSamples[i+j]);
-//                        sample &= 0x00ffffff;
-//                        sample <<= 8;
-//                        //rec->sampleBuffer[i][j] = ((int)sample)/(float)(2);/* use tail here */
-//                        lock_xadd(&rec->sampleCounter, 1);
-//                    }
-//                }
+                        && __builtin_memcmp(hdr1722->stream_id, listen_stream_id, 8) == 0){ /* 1722-AVTP & StreamId */
+                six1883_header_t *hdr61883;
+                //__u8 audioChannels =
+                parse_61883hdr(&nh, data_end, &hdr61883);
+                __u32 *avtpSamples = (__u32*)nh.pos;
+
+                int i,j;
+                #pragma unroll
+                for(i=0; i<6*AUDIO_CHANNELS;i+=AUDIO_CHANNELS){
+                    #pragma unroll
+                    for(j=0; j<AUDIO_CHANNELS;j++){
+                        __u32 sample = bpf_htonl(avtpSamples[i+j]);
+                        sample &= 0x00ffffff;
+                        sample <<= 8;
+                        //rec->sampleBuffer[i][j] = ((int)sample)/(float)(2);/* use tail here */
+                        lock_xadd(&rec->sampleCounter, 1);
+                    }
+                }
 
                 lock_xadd(&rec->rx_pkt_cnt, 1);
                 if( rec->rx_pkt_cnt % SAMPLEBUF_SIZE == 0 ){
