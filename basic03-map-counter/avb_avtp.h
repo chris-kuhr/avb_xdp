@@ -18,7 +18,7 @@ typedef struct eth_headerQ {
 	/* VLAN */
 	__u8 h_vlan[4];
 	/* Protocol ID. */
-	__u8 h_protocol[2];
+	__u16 h_protocol;
 } eth_headerQ_t;
 
 typedef struct seventeen22_header {

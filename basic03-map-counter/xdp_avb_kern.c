@@ -64,7 +64,7 @@ static __always_inline __u16 parse_ethhdr(struct hdr_cursor *nh,
 	nh->pos += hdrsize;
 	*ethhdr = eth;
 
-	return eth->h_protocol; /* network-byte-order */
+	return eth->h_protocol ; /* network-byte-order */
 }
 
 static __always_inline __u8 parse_1722hdr(struct hdr_cursor *nh,
