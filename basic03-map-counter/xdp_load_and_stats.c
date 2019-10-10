@@ -119,10 +119,10 @@ static void stats_print(struct stats_record *stats_rec,
 		if (period == 0)
 		       return;
 
-		packets = rec->total.rx_packets - prev->total.rx_packets;
+		packets = rec->total.rx_pkt_cnt - prev->total.rx_pkt_cnt;
 		pps     = packets / period;
 
-		printf(fmt, action, rec->total.rx_packets, rec->total.accu_rx_timestamp, rec->total.sampleBuffer[2][120], rec->total.counter, pps, period);
+		printf(fmt, action, rec->total.rx_pkt_cnt, rec->total.accu_rx_timestamp, rec->total.sampleBuffer[2][120], rec->total.sampleCounter, pps, period);
 	}
 }
 
@@ -166,9 +166,9 @@ static bool map_collect(int fd, __u32 map_type, __u32 key, struct record *rec)
 	}
 
 	/* Assignment#1: Add byte counters */
-	rec->total.rx_packets = value.rx_packets;
+	rec->total.rx_pkt_cnt = value.rx_pkt_cnt;
 	rec->total.accu_rx_timestamp = value.accu_rx_timestamp;
-	rec->total.counter = value.counter;
+	rec->total.sampleCounter = value.sampleCounter;
 	memcpy( rec->total.sampleBuffer, value.sampleBuffer, sizeof(__u32) * AUDIO_CHANNELS * SAMPLEBUF_SIZE);
 	return true;
 }
