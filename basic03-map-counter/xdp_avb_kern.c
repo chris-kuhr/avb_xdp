@@ -12,6 +12,7 @@
 #include "avb_avtp.h"
 #include "common_kern_user.h" /* defines: struct datarec; */
 
+#define NAME "xdp_avtp"
 
 #ifndef __section
 # define __section(NAME)                  \
