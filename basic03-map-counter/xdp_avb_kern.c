@@ -104,10 +104,6 @@ int  xdp_avtp_func(struct xdp_md *ctx)
 
     //     Lookup in kernel BPF-side return pointer to actual data record
     __u32 key = XDP_PASS;
-    rec = bpf_map_lookup_elem(&xdp_stats_map, &key);
-    if (!rec) return XDP_ABORTED;
-
-    lock_xadd(&rec->rx_pkt_cnt, 1);
     //Start next header cursor position at data start
 	nh.pos = data;
 
@@ -122,6 +118,14 @@ int  xdp_avtp_func(struct xdp_md *ctx)
                 //__u8 audioChannels =
                 parse_61883hdr(&nh, data_end, &hdr61883);
 //                __u32 *avtpSamples = (__u32*)nh.pos;
+
+
+                rec = bpf_map_lookup_elem(&xdp_stats_map, &key);
+                if (!rec) return XDP_ABORTED;
+
+                lock_xadd(&rec->rx_pkt_cnt, 1);
+
+
 
 //                int i,j;
 //                #pragma unroll
