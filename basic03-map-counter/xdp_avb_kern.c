@@ -154,7 +154,7 @@ int  xdp_avtp_func(struct xdp_md *ctx)
 //
 //passing:
 
-    if( rec->rx_pkt_cnt++ % 100 = 0) rec->rx_pkt_cnt = 0;
+    if( rec->rx_pkt_cnt++ % 100 == 0) rec->rx_pkt_cnt = 0;
 
     return XDP_PASS;
 
