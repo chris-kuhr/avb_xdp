@@ -157,10 +157,10 @@ int  xdp_avtp_func(struct xdp_md *ctx)
 
 
 
-	rec->accu_rx_timestamp = accu_rx_timestamp;
-	rec->rx_pkt_cnt = rx_pkt_cnt;
-	rec->sampleCounter = sampleCounter;
-	rec->sampleBuffer[0] = sampleBuffer;
+//	rec->accu_rx_timestamp = accu_rx_timestamp;
+//	rec->rx_pkt_cnt = rx_pkt_cnt;
+//	rec->sampleCounter = sampleCounter;
+//	rec->sampleBuffer[0] = sampleBuffer;
 
 
     return XDP_PASS;
