@@ -123,6 +123,8 @@ int  xdp_avtp_func(struct xdp_md *ctx)
                 parse_61883hdr(&nh, data_end, &hdr61883);
 //                __u32 *avtpSamples = (__u32*)nh.pos;
 
+                rec->rx_pkt_cnt++;
+
 //                int i,j;
 //                #pragma unroll
 //                for(j=0; j<AUDIO_CHANNELS;j++){
