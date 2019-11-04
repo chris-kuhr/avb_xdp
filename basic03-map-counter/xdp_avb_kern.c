@@ -27,58 +27,58 @@ struct bpf_map_def SEC("maps") xdp_stats_map = {
 struct hdr_cursor {
 	void *pos;
 };
-
-/* Packet parsing helpers.
- * Each helper parses a packet header, including doing bounds checking, and
- * returns the type of its contents if successful, and -1 otherwise..
- */
-static __always_inline __u16 parse_ethhdr(struct hdr_cursor *nh,
-					void *data_end, eth_headerQ_t **ethhdr)
-{
-	eth_headerQ_t *eth = nh->pos;
-	int hdrsize = sizeof(*eth);
-
-	if (nh->pos + hdrsize > data_end)
-		return -1;
-
-	nh->pos += hdrsize;
-	*ethhdr = eth;
-
-	return eth->h_protocol ; /* network-byte-order */
-}
-
-static __always_inline __u8 parse_1722hdr(struct hdr_cursor *nh,
-					void *data_end, seventeen22_header_t **hdr1722)
-{
-    seventeen22_header_t *tmp_hdr1722 = nh->pos;
-	int hdrsize = sizeof(*tmp_hdr1722);
-
-	if (nh->pos + hdrsize > data_end)
-		return -1;
-
-	nh->pos += hdrsize;
-	*hdr1722 = tmp_hdr1722;
-
-	return tmp_hdr1722->subtype_cd & 0x7F; /* network-byte-order */
-}
-
-static __always_inline __u8 parse_61883hdr(struct hdr_cursor *nh,
-					void *data_end, six1883_header_t **hdr61883)
-{
-	six1883_header_t *tmp_hdr61883 = nh->pos;
-	int hdrsize = sizeof(*tmp_hdr61883);
-
-	/* Byte-count bounds check; check if current pointer + size of header
-	 * is after data_end.
-	 */
-	if (nh->pos + hdrsize > data_end)
-		return -1;
-
-	nh->pos += hdrsize;
-	*hdr61883 = tmp_hdr61883;
-
-	return tmp_hdr61883->data_block_size; /* network-byte-order */
-}
+//
+///* Packet parsing helpers.
+// * Each helper parses a packet header, including doing bounds checking, and
+// * returns the type of its contents if successful, and -1 otherwise..
+// */
+//static __always_inline __u16 parse_ethhdr(struct hdr_cursor *nh,
+//					void *data_end, eth_headerQ_t **ethhdr)
+//{
+//	eth_headerQ_t *eth = nh->pos;
+//	int hdrsize = sizeof(*eth);
+//
+//	if (nh->pos + hdrsize > data_end)
+//		return -1;
+//
+//	nh->pos += hdrsize;
+//	*ethhdr = eth;
+//
+//	return eth->h_protocol ; /* network-byte-order */
+//}
+//
+//static __always_inline __u8 parse_1722hdr(struct hdr_cursor *nh,
+//					void *data_end, seventeen22_header_t **hdr1722)
+//{
+//    seventeen22_header_t *tmp_hdr1722 = nh->pos;
+//	int hdrsize = sizeof(*tmp_hdr1722);
+//
+//	if (nh->pos + hdrsize > data_end)
+//		return -1;
+//
+//	nh->pos += hdrsize;
+//	*hdr1722 = tmp_hdr1722;
+//
+//	return tmp_hdr1722->subtype_cd & 0x7F; /* network-byte-order */
+//}
+//
+//static __always_inline __u8 parse_61883hdr(struct hdr_cursor *nh,
+//					void *data_end, six1883_header_t **hdr61883)
+//{
+//	six1883_header_t *tmp_hdr61883 = nh->pos;
+//	int hdrsize = sizeof(*tmp_hdr61883);
+//
+//	/* Byte-count bounds check; check if current pointer + size of header
+//	 * is after data_end.
+//	 */
+//	if (nh->pos + hdrsize > data_end)
+//		return -1;
+//
+//	nh->pos += hdrsize;
+//	*hdr61883 = tmp_hdr61883;
+//
+//	return tmp_hdr61883->data_block_size; /* network-byte-order */
+//}
 
 /* LLVM maps __sync_fetch_and_add() as a built-in function to the BPF atomic add
  * instruction (that is BPF_STX | BPF_XADD | BPF_W for word sizes)
