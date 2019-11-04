@@ -27,25 +27,25 @@ struct bpf_map_def SEC("maps") xdp_stats_map = {
 struct hdr_cursor {
 	void *pos;
 };
-//
-///* Packet parsing helpers.
-// * Each helper parses a packet header, including doing bounds checking, and
-// * returns the type of its contents if successful, and -1 otherwise..
-// */
-//static __always_inline __u16 parse_ethhdr(struct hdr_cursor *nh,
-//					void *data_end, eth_headerQ_t **ethhdr)
-//{
-//	eth_headerQ_t *eth = nh->pos;
-//	int hdrsize = sizeof(*eth);
-//
-//	if (nh->pos + hdrsize > data_end)
-//		return -1;
-//
-//	nh->pos += hdrsize;
-//	*ethhdr = eth;
-//
-//	return eth->h_protocol ; /* network-byte-order */
-//}
+
+/* Packet parsing helpers.
+ * Each helper parses a packet header, including doing bounds checking, and
+ * returns the type of its contents if successful, and -1 otherwise..
+ */
+static __always_inline __u16 parse_ethhdr(struct hdr_cursor *nh,
+					void *data_end, eth_headerQ_t **ethhdr)
+{
+	eth_headerQ_t *eth = nh->pos;
+	int hdrsize = sizeof(*eth);
+
+	if (nh->pos + hdrsize > data_end)
+		return -1;
+
+	nh->pos += hdrsize;
+	*ethhdr = eth;
+
+	return eth->h_protocol ; /* network-byte-order */
+}
 //
 //static __always_inline __u8 parse_1722hdr(struct hdr_cursor *nh,
 //					void *data_end, seventeen22_header_t **hdr1722)
@@ -91,11 +91,11 @@ SEC("xdp_avtp")
 int  xdp_avtp_func(struct xdp_md *ctx)
 {
 
-//	eth_headerQ_t *eth;
-//    __u8 listen_dst_mac[6] =     {0x00,0x00,0x00,0x00,0x00,0x00};
-//    __u8 listen_stream_id[8] =   {0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00};
-//	void *data_end = (void *)(long)ctx->data_end;
-//	void *data = (void *)(long)ctx->data;
+	eth_headerQ_t *eth;
+    __u8 listen_dst_mac[6] =     {0x00,0x00,0x00,0x00,0x00,0x00};
+    __u8 listen_stream_id[8] =   {0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00};
+	void *data_end = (void *)(long)ctx->data_end;
+	void *data = (void *)(long)ctx->data;
 	struct datarec *rec = NULL;
 
     //     Lookup in kernel BPF-side return pointer to actual data record
@@ -104,17 +104,17 @@ int  xdp_avtp_func(struct xdp_md *ctx)
     if (!rec) return XDP_ABORTED;
 
 
-//	struct hdr_cursor nh;
-//	int nh_type;
-//
-//
-//
-//
-//    //Start next header cursor position at data start
-//	nh.pos = data;
-//
-//	nh_type = parse_ethhdr(&nh, data_end, &eth);
-//    if( nh_type == bpf_htons(ETH_P_TSN) ){
+	struct hdr_cursor nh;
+	int nh_type;
+
+
+
+
+    //Start next header cursor position at data start
+	nh.pos = data;
+
+	nh_type = parse_ethhdr(&nh, data_end, &eth);
+    if( nh_type == bpf_htons(ETH_P_TSN) ){
 //        if( __builtin_memcmp(listen_dst_mac, eth->h_dest, 6 ) == 0 ){
 //            seventeen22_header_t *hdr1722;
 //            __u8 proto1722 = parse_1722hdr(&nh, data_end, &hdr1722);
@@ -150,12 +150,10 @@ int  xdp_avtp_func(struct xdp_md *ctx)
 ////                }
 //            }
 //        }
-//
-//    }
-//
-//passing:
+        rec->rx_pkt_cnt++;
+    }
 
-    if( rec->rx_pkt_cnt++ % 100 == 0) rec->rx_pkt_cnt = 0;
+//passing:
 
     return XDP_PASS;
 
