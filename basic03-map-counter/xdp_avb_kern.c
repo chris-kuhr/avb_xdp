@@ -62,23 +62,23 @@ static __always_inline __u8 parse_1722hdr(struct hdr_cursor *nh,
 	return tmp_hdr1722->subtype_cd & 0x7F; /* network-byte-order */
 }
 
-static __always_inline __u8 parse_61883hdr(struct hdr_cursor *nh,
-					void *data_end, six1883_header_t **hdr61883)
-{
-	six1883_header_t *tmp_hdr61883 = nh->pos;
-	int hdrsize = sizeof(*tmp_hdr61883);
-
-	/* Byte-count bounds check; check if current pointer + size of header
-	 * is after data_end.
-	 */
-	if (nh->pos + hdrsize > data_end)
-		return -1;
-
-	nh->pos += hdrsize;
-	*hdr61883 = tmp_hdr61883;
-
-	return tmp_hdr61883->data_block_size; /* network-byte-order */
-}
+//static __always_inline __u8 parse_61883hdr(struct hdr_cursor *nh,
+//					void *data_end, six1883_header_t **hdr61883)
+//{
+//	six1883_header_t *tmp_hdr61883 = nh->pos;
+//	int hdrsize = sizeof(*tmp_hdr61883);
+//
+//	/* Byte-count bounds check; check if current pointer + size of header
+//	 * is after data_end.
+//	 */
+//	if (nh->pos + hdrsize > data_end)
+//		return -1;
+//
+//	nh->pos += hdrsize;
+//	*hdr61883 = tmp_hdr61883;
+//
+//	return tmp_hdr61883->data_block_size; /* network-byte-order */
+//}
 
 /* LLVM maps __sync_fetch_and_add() as a built-in function to the BPF atomic add
  * instruction (that is BPF_STX | BPF_XADD | BPF_W for word sizes)
