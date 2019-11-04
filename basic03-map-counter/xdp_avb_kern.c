@@ -103,57 +103,58 @@ int  xdp_avtp_func(struct xdp_md *ctx)
     if (!rec) return XDP_ABORTED;
 
 
-	struct hdr_cursor nh;
-	int nh_type;
-
-
-
-
-    //Start next header cursor position at data start
-	nh.pos = data;
-
-	nh_type = parse_ethhdr(&nh, data_end, &eth);
-    if( nh_type == bpf_htons(ETH_P_TSN) ){
-        if( __builtin_memcmp(listen_dst_mac, eth->h_dest, 6 ) == 0 ){
-            seventeen22_header_t *hdr1722;
-            __u8 proto1722 = parse_1722hdr(&nh, data_end, &hdr1722);
-            if( bpf_htons(proto1722) == 0x00
-                        && __builtin_memcmp(listen_stream_id, hdr1722->stream_id, 8) == 0){ // 1722-AVTP & StreamId
-                six1883_header_t *hdr61883;
-                //__u8 audioChannels =
-                parse_61883hdr(&nh, data_end, &hdr61883);
-                __u32 *avtpSamples = (__u32*)nh.pos;
-
-
-                int i,j;
-                #pragma unroll
-                for(j=0; j<AUDIO_CHANNELS;j++){
-
-                    #pragma unroll
-                    for(i=0; i<6*AUDIO_CHANNELS;i+=AUDIO_CHANNELS){
-                        __u32 sample = bpf_htonl(avtpSamples[i+j]) & 0x00ffffff;
-                        sample <<= 8;
-//                        rec->sampleBuffer[j][i] = (int) sample;//(float)((int)sample);///(float)(2);// use tail here
-//                        rec->sampleCounter++;
-                    }
-                }
-
-
-
-//                rec->rx_pkt_cnt++;
-//                if( rec->rx_pkt_cnt % SAMPLEBUF_SIZE == 0 ){
-//                    rec->accu_rx_timestamp = 0x123456789;
-                    goto passing;
-//                } else {
-//                    goto dropping;
+//	struct hdr_cursor nh;
+//	int nh_type;
+//
+//
+//
+//
+//    //Start next header cursor position at data start
+//	nh.pos = data;
+//
+//	nh_type = parse_ethhdr(&nh, data_end, &eth);
+//    if( nh_type == bpf_htons(ETH_P_TSN) ){
+//        if( __builtin_memcmp(listen_dst_mac, eth->h_dest, 6 ) == 0 ){
+//            seventeen22_header_t *hdr1722;
+//            __u8 proto1722 = parse_1722hdr(&nh, data_end, &hdr1722);
+//            if( bpf_htons(proto1722) == 0x00
+//                        && __builtin_memcmp(listen_stream_id, hdr1722->stream_id, 8) == 0){ // 1722-AVTP & StreamId
+//                six1883_header_t *hdr61883;
+//                //__u8 audioChannels =
+//                parse_61883hdr(&nh, data_end, &hdr61883);
+//                __u32 *avtpSamples = (__u32*)nh.pos;
+//
+//
+//                int i,j;
+//                #pragma unroll
+//                for(j=0; j<AUDIO_CHANNELS;j++){
+//
+//                    #pragma unroll
+//                    for(i=0; i<6*AUDIO_CHANNELS;i+=AUDIO_CHANNELS){
+//                        __u32 sample = bpf_htonl(avtpSamples[i+j]) & 0x00ffffff;
+//                        sample <<= 8;
+////                        rec->sampleBuffer[j][i] = (int) sample;//(float)((int)sample);///(float)(2);// use tail here
+////                        rec->sampleCounter++;
+//                    }
 //                }
-            }
-        }
+//
+//
+//
+////                rec->rx_pkt_cnt++;
+////                if( rec->rx_pkt_cnt % SAMPLEBUF_SIZE == 0 ){
+////                    rec->accu_rx_timestamp = 0x123456789;
+//                    goto passing;
+////                } else {
+////                    goto dropping;
+////                }
+//            }
+//        }
+//
+//    }
+//
+//passing:
 
-    }
-
-passing:
-    rec->rx_pkt_cnt++;
+    if( rec->rx_pkt_cnt++ % 100 = 0) rec->rx_pkt_cnt = 0;
 
     return XDP_PASS;
 
