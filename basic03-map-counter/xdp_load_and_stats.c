@@ -300,7 +300,7 @@ int main(int argc, char **argv)
 
 	map_expect.key_size    = sizeof(__u32);
 	map_expect.value_size  = sizeof(struct datarec);
-	map_expect.max_entries = AUDIO_CHANNELS;
+	map_expect.max_entries = XDP_ACTION_MAX;
 	err = __check_map_fd_info(stats_map_fd, &info, &map_expect);
 	if (err) {
 		fprintf(stderr, "ERR: map via FD not compatible\n");
