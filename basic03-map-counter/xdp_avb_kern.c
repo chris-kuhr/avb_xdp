@@ -95,7 +95,7 @@ int  xdp_avtp_func(struct xdp_md *ctx)
 	void *data_end = (void *)(long)ctx->data_end;
 	void *data = (void *)(long)ctx->data;
 	eth_headerQ_t *eth;
-	struct datarec *rec;
+	struct datarec *rec = NULL;
 
 	struct hdr_cursor nh;
 	int nh_type;
@@ -141,16 +141,17 @@ int  xdp_avtp_func(struct xdp_md *ctx)
 
                 }
 
+                if (!rec) return XDP_ABORTED;
+                lock_xadd(&rec->rx_pkt_cnt, 1);
+                if( rec->rx_pkt_cnt % SAMPLEBUF_SIZE == 0 ){
+                    rec->accu_rx_timestamp = 0x123456789;
+                    return XDP_PASS;
+                } else {
+                    return XDP_DROP;
+                }
             }
         }
 
-        lock_xadd(&rec->rx_pkt_cnt, 1);
-//        if( rec->rx_pkt_cnt % SAMPLEBUF_SIZE == 0 ){
-//            rec->accu_rx_timestamp = 0x123456789;
-//            return XDP_PASS;
-//        } else {
-//            return XDP_DROP;
-//        }
     }
     return XDP_PASS;
 
