@@ -93,7 +93,7 @@ int  xdp_avtp_func(struct xdp_md *ctx)
 
 	eth_headerQ_t *eth;
     __u8 listen_dst_mac[6] =     {0x00,0x00,0x00,0x00,0x00,0x00};
-//    __u8 listen_stream_id[8] =   {0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00};
+    __u8 listen_stream_id[8] =   {0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00};
 	void *data_end = (void *)(long)ctx->data_end;
 	void *data = (void *)(long)ctx->data;
 	struct datarec *rec = NULL;
@@ -125,15 +125,15 @@ int  xdp_avtp_func(struct xdp_md *ctx)
 
             seventeen22_header_t *hdr1722;
             __u8 proto1722 = parse_1722hdr(&nh, data_end, &hdr1722);
-            if( bpf_htons(proto1722) == 0x00 ){
-//                        && (listen_stream_id[0] == hdr1722->stream_id[0])
-//                        && (listen_stream_id[1] == hdr1722->stream_id[1])
-//                        && (listen_stream_id[2] == hdr1722->stream_id[2])
-//                        && (listen_stream_id[3] == hdr1722->stream_id[3])
-//                        && (listen_stream_id[4] == hdr1722->stream_id[4])
-//                        && (listen_stream_id[5] == hdr1722->stream_id[5])
-//                        && (listen_stream_id[6] == hdr1722->stream_id[6])
-//                        && (listen_stream_id[7] == hdr1722->stream_id[7]) ){
+            if( bpf_htons(proto1722) == 0x00
+                        && (listen_stream_id[0] == hdr1722->stream_id[0])
+                        && (listen_stream_id[1] == hdr1722->stream_id[1])
+                        && (listen_stream_id[2] == hdr1722->stream_id[2])
+                        && (listen_stream_id[3] == hdr1722->stream_id[3])
+                        && (listen_stream_id[4] == hdr1722->stream_id[4])
+                        && (listen_stream_id[5] == hdr1722->stream_id[5])
+                        && (listen_stream_id[6] == hdr1722->stream_id[6])
+                        && (listen_stream_id[7] == hdr1722->stream_id[7]) ){
 //
 //                six1883_header_t *hdr61883;
 //                //__u8 audioChannels =
