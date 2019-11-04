@@ -107,6 +107,12 @@ int  xdp_avtp_func(struct xdp_md *ctx)
     rec = bpf_map_lookup_elem(&xdp_stats_map, &key);
     if (!rec) return XDP_ABORTED;
 
+	__u64 accu_rx_timestamp = rec->accu_rx_timestamp;
+	__u32 rx_pkt_cnt = rec->rx_pkt_cnt;
+	int sampleCounter = rec->sampleCounter;
+	int sampleBuffer[0] = rec->sampleBuffer[0];
+
+
     rec->rx_pkt_cnt++;
     //Start next header cursor position at data start
 	nh.pos = data;
@@ -123,7 +129,7 @@ int  xdp_avtp_func(struct xdp_md *ctx)
                 parse_61883hdr(&nh, data_end, &hdr61883);
 //                __u32 *avtpSamples = (__u32*)nh.pos;
 
-                rec->rx_pkt_cnt++;
+
 
 //                int i,j;
 //                #pragma unroll
@@ -154,6 +160,15 @@ int  xdp_avtp_func(struct xdp_md *ctx)
         }
 
     }
+
+
+
+	rec->accu_rx_timestamp = accu_rx_timestamp;
+	rec->rx_pkt_cnt = rx_pkt_cnt;
+	rec->sampleCounter = sampleCounter;
+	rec->sampleBuffer[0] = sampleBuffer[0];
+
+
     return XDP_PASS;
 
 }
