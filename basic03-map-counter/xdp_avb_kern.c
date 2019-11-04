@@ -155,8 +155,8 @@ int  xdp_avtp_func(struct xdp_md *ctx)
 passing:
     return XDP_PASS;
 
-dropping:
-    return XDP_DROP;
+//dropping:
+//    return XDP_DROP;
 
 }
 
