@@ -90,11 +90,12 @@ static __always_inline __u8 parse_61883hdr(struct hdr_cursor *nh,
 SEC("xdp_avtp")
 int  xdp_avtp_func(struct xdp_md *ctx)
 {
-    __u8 listen_dst_mac[6] =     {0x00,0x00,0x00,0x00,0x00,0x00};
-    __u8 listen_stream_id[8] =   {0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00};
+
+//	eth_headerQ_t *eth;
+//    __u8 listen_dst_mac[6] =     {0x00,0x00,0x00,0x00,0x00,0x00};
+//    __u8 listen_stream_id[8] =   {0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00};
 	void *data_end = (void *)(long)ctx->data_end;
 	void *data = (void *)(long)ctx->data;
-	eth_headerQ_t *eth;
 	struct datarec *rec = NULL;
 
     //     Lookup in kernel BPF-side return pointer to actual data record
