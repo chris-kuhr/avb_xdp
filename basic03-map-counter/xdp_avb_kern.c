@@ -113,7 +113,6 @@ int  xdp_avtp_func(struct xdp_md *ctx)
 	int sampleBuffer = rec->sampleBuffer[0];
 
 
-    rec->rx_pkt_cnt++;
     //Start next header cursor position at data start
 	nh.pos = data;
 
@@ -127,35 +126,31 @@ int  xdp_avtp_func(struct xdp_md *ctx)
                 six1883_header_t *hdr61883;
                 //__u8 audioChannels =
                 parse_61883hdr(&nh, data_end, &hdr61883);
-//                __u32 *avtpSamples = (__u32*)nh.pos;
+                __u32 *avtpSamples = (__u32*)nh.pos;
+
+
+                int i,j;
+                #pragma unroll
+                for(j=0; j<AUDIO_CHANNELS;j++){
+
+                    #pragma unroll
+                    for(i=0; i<6*AUDIO_CHANNELS;i+=AUDIO_CHANNELS){
+                        __u32 sample = bpf_htonl(avtpSamples[i+j]) & 0x00ffffff;
+                        sample <<= 8;
+                        sampleBuffer = (int) sample;//(float)((int)sample);///(float)(2);// use tail here
+                        sampleCounter++;
+                    }
+                }
 
 
 
-//                int i,j;
-//                #pragma unroll
-//                for(j=0; j<AUDIO_CHANNELS;j++){
-//
-//                    #pragma unroll
-//                    for(i=0; i<6*AUDIO_CHANNELS;i+=AUDIO_CHANNELS){
-//                        __u32 sample = bpf_htonl(avtpSamples[i+j]) & 0x00ffffff;
-//                        sample <<= 8;
-//                        //rec->sampleBuffer[j] = (int) sample;//(float)((int)sample);///(float)(2);// use tail here
-//                        //lock_xadd(&rec->sampleCounter, 1);
-//                    }
-//
-//
-//
-//                }
-
-
-
-//                lock_xadd(&rec->rx_pkt_cnt, 1);
-//                if( rec->rx_pkt_cnt % SAMPLEBUF_SIZE == 0 ){
-//                    rec->accu_rx_timestamp = 0x123456789;
-//                    return XDP_PASS;
-//                } else {
-//                    return XDP_DROP;
-//                }
+                rx_pkt_cnt++;
+                if( rx_pkt_cnt % SAMPLEBUF_SIZE == 0 ){
+                    accu_rx_timestamp = 0x123456789;
+                    return XDP_PASS;
+                } else {
+                    return XDP_DROP;
+                }
             }
         }
 
