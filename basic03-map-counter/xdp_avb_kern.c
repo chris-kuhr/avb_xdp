@@ -97,6 +97,10 @@ int  xdp_avtp_func(struct xdp_md *ctx)
 	eth_headerQ_t *eth;
 	struct datarec *rec = NULL;
 
+    //     Lookup in kernel BPF-side return pointer to actual data record
+    __u32 key = XDP_PASS;
+    rec = bpf_map_lookup_elem(&xdp_stats_map, &key);
+    if (!rec) return XDP_ABORTED;
 
 
 	struct hdr_cursor nh;
@@ -115,12 +119,6 @@ int  xdp_avtp_func(struct xdp_md *ctx)
             __u8 proto1722 = parse_1722hdr(&nh, data_end, &hdr1722);
             if( bpf_htons(proto1722) == 0x00
                         && __builtin_memcmp(listen_stream_id, hdr1722->stream_id, 8) == 0){ // 1722-AVTP & StreamId
-
-                //     Lookup in kernel BPF-side return pointer to actual data record
-                __u32 key = XDP_PASS;
-                rec = bpf_map_lookup_elem(&xdp_stats_map, &key);
-                if (!rec) return XDP_ABORTED;
-
                 six1883_header_t *hdr61883;
                 //__u8 audioChannels =
                 parse_61883hdr(&nh, data_end, &hdr61883);
@@ -142,21 +140,23 @@ int  xdp_avtp_func(struct xdp_md *ctx)
 
 
 
-//                rec->rx_pkt_cnt++;
-//                if( rec->rx_pkt_cnt % SAMPLEBUF_SIZE == 0 ){
-//                    rec->accu_rx_timestamp = 0x123456789;
-//                } else {
-//                    //goto dropping;
-//                }
+                rec->rx_pkt_cnt++;
+                if( rec->rx_pkt_cnt % SAMPLEBUF_SIZE == 0 ){
+                    rec->accu_rx_timestamp = 0x123456789;
+                    goto passing;
+                } else {
+                    goto dropping;
+                }
             }
         }
 
     }
 
+passing:
     return XDP_PASS;
 
-//dropping:
-//    return XDP_DROP;
+dropping:
+    return XDP_DROP;
 
 }
 
