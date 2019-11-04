@@ -142,7 +142,7 @@ int  xdp_avtp_func(struct xdp_md *ctx)
                 rec = bpf_map_lookup_elem(&xdp_stats_map, &key);
                 if (!rec) return XDP_ABORTED;
 
-                __builtin_memcpy(&rec->sampleBuffer, sampBuf, sizeof(sampBuf));
+//                __builtin_memcpy(&rec->sampleBuffer, sampBuf, sizeof(sampBuf));
 
 
                 rec->rx_pkt_cnt++;
