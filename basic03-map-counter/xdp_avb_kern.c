@@ -140,7 +140,7 @@ int  xdp_avtp_func(struct xdp_md *ctx)
 
 
 
-                rec->rx_pkt_cnt++;
+//                rec->rx_pkt_cnt++;
 //                if( rec->rx_pkt_cnt % SAMPLEBUF_SIZE == 0 ){
 //                    rec->accu_rx_timestamp = 0x123456789;
                     goto passing;
@@ -153,6 +153,8 @@ int  xdp_avtp_func(struct xdp_md *ctx)
     }
 
 passing:
+    rec->rx_pkt_cnt++;
+
     return XDP_PASS;
 
 //dropping:
