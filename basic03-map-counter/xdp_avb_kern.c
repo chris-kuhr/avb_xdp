@@ -46,39 +46,39 @@ static __always_inline __u16 parse_ethhdr(struct hdr_cursor *nh,
 
 	return eth->h_protocol ; /* network-byte-order */
 }
-//
-//static __always_inline __u8 parse_1722hdr(struct hdr_cursor *nh,
-//					void *data_end, seventeen22_header_t **hdr1722)
-//{
-//    seventeen22_header_t *tmp_hdr1722 = nh->pos;
-//	int hdrsize = sizeof(*tmp_hdr1722);
-//
-//	if (nh->pos + hdrsize > data_end)
-//		return -1;
-//
-//	nh->pos += hdrsize;
-//	*hdr1722 = tmp_hdr1722;
-//
-//	return tmp_hdr1722->subtype_cd & 0x7F; /* network-byte-order */
-//}
-//
-//static __always_inline __u8 parse_61883hdr(struct hdr_cursor *nh,
-//					void *data_end, six1883_header_t **hdr61883)
-//{
-//	six1883_header_t *tmp_hdr61883 = nh->pos;
-//	int hdrsize = sizeof(*tmp_hdr61883);
-//
-//	/* Byte-count bounds check; check if current pointer + size of header
-//	 * is after data_end.
-//	 */
-//	if (nh->pos + hdrsize > data_end)
-//		return -1;
-//
-//	nh->pos += hdrsize;
-//	*hdr61883 = tmp_hdr61883;
-//
-//	return tmp_hdr61883->data_block_size; /* network-byte-order */
-//}
+
+static __always_inline __u8 parse_1722hdr(struct hdr_cursor *nh,
+					void *data_end, seventeen22_header_t **hdr1722)
+{
+    seventeen22_header_t *tmp_hdr1722 = nh->pos;
+	int hdrsize = sizeof(*tmp_hdr1722);
+
+	if (nh->pos + hdrsize > data_end)
+		return -1;
+
+	nh->pos += hdrsize;
+	*hdr1722 = tmp_hdr1722;
+
+	return tmp_hdr1722->subtype_cd & 0x7F; /* network-byte-order */
+}
+
+static __always_inline __u8 parse_61883hdr(struct hdr_cursor *nh,
+					void *data_end, six1883_header_t **hdr61883)
+{
+	six1883_header_t *tmp_hdr61883 = nh->pos;
+	int hdrsize = sizeof(*tmp_hdr61883);
+
+	/* Byte-count bounds check; check if current pointer + size of header
+	 * is after data_end.
+	 */
+	if (nh->pos + hdrsize > data_end)
+		return -1;
+
+	nh->pos += hdrsize;
+	*hdr61883 = tmp_hdr61883;
+
+	return tmp_hdr61883->data_block_size; /* network-byte-order */
+}
 
 /* LLVM maps __sync_fetch_and_add() as a built-in function to the BPF atomic add
  * instruction (that is BPF_STX | BPF_XADD | BPF_W for word sizes)
@@ -93,7 +93,7 @@ int  xdp_avtp_func(struct xdp_md *ctx)
 
 	eth_headerQ_t *eth;
     __u8 listen_dst_mac[6] =     {0x00,0x00,0x00,0x00,0x00,0x00};
-//    __u8 listen_stream_id[8] =   {0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00};
+    __u8 listen_stream_id[8] =   {0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00};
 	void *data_end = (void *)(long)ctx->data_end;
 	void *data = (void *)(long)ctx->data;
 	struct datarec *rec = NULL;
