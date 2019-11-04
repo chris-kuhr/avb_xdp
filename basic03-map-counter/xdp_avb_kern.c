@@ -104,8 +104,8 @@ int  xdp_avtp_func(struct xdp_md *ctx)
 
     //     Lookup in kernel BPF-side return pointer to actual data record
     __u32 key = XDP_PASS;
-//    rec = bpf_map_lookup_elem(&xdp_stats_map, &key);
-//    if (!rec) return XDP_ABORTED;
+    rec = bpf_map_lookup_elem(&xdp_stats_map, &key);
+    if (!rec) return XDP_ABORTED;
 
     //Start next header cursor position at data start
 	nh.pos = data;
@@ -126,22 +126,18 @@ int  xdp_avtp_func(struct xdp_md *ctx)
                 #pragma unroll
                 for(j=0; j<AUDIO_CHANNELS;j++){
 
-                    rec = bpf_map_lookup_elem(&xdp_stats_map, &key);
-                    if (!rec) return XDP_ABORTED;
-
                     #pragma unroll
                     for(i=0; i<6*AUDIO_CHANNELS;i+=AUDIO_CHANNELS){
                         __u32 sample = bpf_htonl(avtpSamples[i+j]) & 0x00ffffff;
                         sample <<= 8;
-//                        rec->sampleBuffer/*[i]*/ = (int) sample;//(float)((int)sample);///(float)(2);/* use tail here */
-//                        lock_xadd(&rec->sampleCounter, 1);
+                        rec->sampleBuffer[0] = (int) sample;//(float)((int)sample);///(float)(2);/* use tail here */
+                        lock_xadd(&rec->sampleCounter, 1);
                     }
 
 
 
                 }
 
-                if (!rec) return XDP_ABORTED;
                 lock_xadd(&rec->rx_pkt_cnt, 1);
                 if( rec->rx_pkt_cnt % SAMPLEBUF_SIZE == 0 ){
                     rec->accu_rx_timestamp = 0x123456789;
