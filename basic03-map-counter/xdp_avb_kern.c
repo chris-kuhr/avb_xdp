@@ -114,10 +114,6 @@ int  xdp_avtp_func(struct xdp_md *ctx)
             if( bpf_htons(proto1722) == 0x00
                         && __builtin_memcmp(listen_stream_id, hdr1722->stream_id, 8) == 0){ // 1722-AVTP & StreamId
 
-            //     Lookup in kernel BPF-side return pointer to actual data record
-                __u32 key = XDP_PASS;
-                rec = bpf_map_lookup_elem(&xdp_stats_map, &key);
-                if (!rec) return XDP_ABORTED;
 
                 six1883_header_t *hdr61883;
                 //__u8 audioChannels =
@@ -139,6 +135,10 @@ int  xdp_avtp_func(struct xdp_md *ctx)
                 }
 
 
+            //     Lookup in kernel BPF-side return pointer to actual data record
+                __u32 key = XDP_PASS;
+                rec = bpf_map_lookup_elem(&xdp_stats_map, &key);
+                if (!rec) return XDP_ABORTED;
 
 //                rec->rx_pkt_cnt++;
 //                if( rec->rx_pkt_cnt % SAMPLEBUF_SIZE == 0 ){
