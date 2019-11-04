@@ -59,7 +59,9 @@ static __always_inline __u8 parse_1722hdr(struct hdr_cursor *nh,
 	nh->pos += hdrsize;
 	*hdr1722 = tmp_hdr1722;
 
-	return tmp_hdr1722->subtype_cd & 0x7F; /* network-byte-order */
+	__u8 ret = tmp_hdr1722->subtype_cd & 0x7F;
+
+	return ret; /* network-byte-order */
 }
 
 //static __always_inline __u8 parse_61883hdr(struct hdr_cursor *nh,
