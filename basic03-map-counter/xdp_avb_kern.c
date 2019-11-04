@@ -12,12 +12,6 @@
 #include "avb_avtp.h"
 #include "common_kern_user.h" /* defines: struct datarec; */
 
-#define NAME "xdp_avtp"
-
-#ifndef __section
-# define __section(NAME)                  \
-   __attribute__((section(NAME), used))
-#endif
 
 /* - Here an array with XDP_ACTION_MAX (max_)entries are created.
  * - The idea is to keep stats per (enum) xdp_action
@@ -26,7 +20,7 @@ struct bpf_map_def SEC("maps") xdp_stats_map = {
 	.type        = BPF_MAP_TYPE_ARRAY,
 	.key_size    = sizeof(__u32),
 	.value_size  = sizeof(struct datarec),
-	.max_entries = XDP_ACTION_MAX,
+	.max_entries = AUDIO_CHANNELS,
 };
 
 /* Header cursor to keep track of current parsing position */
@@ -102,16 +96,12 @@ int  xdp_avtp_func(struct xdp_md *ctx)
 	void *data = (void *)(long)ctx->data;
 	eth_headerQ_t *eth;
 	struct datarec *rec;
-	__u32 key = XDP_PASS; /* XDP_PASS = 2 */
-
-	/* Lookup in kernel BPF-side return pointer to actual data record */
-	rec = bpf_map_lookup_elem(&xdp_stats_map, &key);
-	if (!rec) return XDP_ABORTED;
 
 	struct hdr_cursor nh;
 	int nh_type;
 
-	/* Start next header cursor position at data start */
+
+    //Start next header cursor position at data start
 	nh.pos = data;
 
 	nh_type = parse_ethhdr(&nh, data_end, &eth);
@@ -120,7 +110,7 @@ int  xdp_avtp_func(struct xdp_md *ctx)
             seventeen22_header_t *hdr1722;
             __u8 proto1722 = parse_1722hdr(&nh, data_end, &hdr1722);
             if( bpf_htons(proto1722) == 0x00
-                        && __builtin_memcmp(listen_stream_id, hdr1722->stream_id, 8) == 0){ /* 1722-AVTP & StreamId */
+                        && __builtin_memcmp(listen_stream_id, hdr1722->stream_id, 8) == 0){ // 1722-AVTP & StreamId
                 six1883_header_t *hdr61883;
                 //__u8 audioChannels =
                 parse_61883hdr(&nh, data_end, &hdr61883);
@@ -128,9 +118,17 @@ int  xdp_avtp_func(struct xdp_md *ctx)
 
                 int i,j;
                 #pragma unroll
-                for(i=0; i<6*AUDIO_CHANNELS;i+=AUDIO_CHANNELS){
+                for(j=0; j<AUDIO_CHANNELS;j++){
+
+
+                    // Lookup in kernel BPF-side return pointer to actual data record
+                    __u32 key = j;
+                    rec = bpf_map_lookup_elem(&xdp_stats_map, &key);
+                    if (!rec) return XDP_ABORTED;
+
+
                     #pragma unroll
-                    for(j=0; j<AUDIO_CHANNELS;j++){
+                    for(i=0; i<6*AUDIO_CHANNELS;i+=AUDIO_CHANNELS){
                         __u32 sample = bpf_htonl(avtpSamples[i+j]) & 0x00ffffff;
                         sample <<= 8;
                         rec->sampleBuffer[i][j] = (int) sample;//(float)((int)sample);///(float)(2);/* use tail here */
