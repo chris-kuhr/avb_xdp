@@ -145,11 +145,11 @@ int  xdp_avtp_func(struct xdp_md *ctx)
 
 
                 rx_pkt_cnt++;
-//                if( rx_pkt_cnt % SAMPLEBUF_SIZE == 0 ){
+                if( rx_pkt_cnt % SAMPLEBUF_SIZE == 0 ){
                     accu_rx_timestamp = 0x123456789;
-//                } else {
-//                    goto dropping;
-//                }
+                } else {
+                    goto dropping;
+                }
             }
         }
 
@@ -165,8 +165,8 @@ int  xdp_avtp_func(struct xdp_md *ctx)
 
     return XDP_PASS;
 
-//dropping:
-//    return XDP_DROP;
+dropping:
+    return XDP_DROP;
 
 }
 
