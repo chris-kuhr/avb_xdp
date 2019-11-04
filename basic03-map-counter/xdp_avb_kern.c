@@ -137,8 +137,8 @@ int  xdp_avtp_func(struct xdp_md *ctx)
                     for(i=0; i<6*AUDIO_CHANNELS;i+=AUDIO_CHANNELS){
                         __u32 sample = bpf_htonl(avtpSamples[i+j]) & 0x00ffffff;
                         sample <<= 8;
-                        sampleBuffer = (int) sample;//(float)((int)sample);///(float)(2);// use tail here
-                        sampleCounter++;
+//                        sampleBuffer = (int) sample;//(float)((int)sample);///(float)(2);// use tail here
+//                        sampleCounter++;
                     }
                 }
 
@@ -147,9 +147,8 @@ int  xdp_avtp_func(struct xdp_md *ctx)
                 rx_pkt_cnt++;
                 if( rx_pkt_cnt % SAMPLEBUF_SIZE == 0 ){
                     accu_rx_timestamp = 0x123456789;
-                    return XDP_PASS;
                 } else {
-                    return XDP_DROP;
+                    goto dropping;
                 }
             }
         }
@@ -165,6 +164,9 @@ int  xdp_avtp_func(struct xdp_md *ctx)
 
 
     return XDP_PASS;
+
+dropping:
+    return XDP_DROP;
 
 }
 
