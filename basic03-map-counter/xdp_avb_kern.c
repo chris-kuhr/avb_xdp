@@ -122,9 +122,9 @@ int  xdp_avtp_func(struct xdp_md *ctx)
 
 
                     // Lookup in kernel BPF-side return pointer to actual data record
-                    __u32 key = j;
-                    rec = bpf_map_lookup_elem(&xdp_stats_map, &key);
-                    if (!rec) return XDP_ABORTED;
+//                    __u32 key = j;
+//                    rec = bpf_map_lookup_elem(&xdp_stats_map, &key);
+//                    if (!rec) return XDP_ABORTED;
 
 
                     #pragma unroll
