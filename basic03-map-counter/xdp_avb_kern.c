@@ -138,13 +138,13 @@ int  xdp_avtp_func(struct xdp_md *ctx)
 
                 }
 
-                lock_xadd(&rec->rx_pkt_cnt, 1);
-                if( rec->rx_pkt_cnt % SAMPLEBUF_SIZE == 0 ){
-                    rec->accu_rx_timestamp = 0x123456789;
-                    return XDP_PASS;
-                } else {
-                    return XDP_DROP;
-                }
+//                lock_xadd(&rec->rx_pkt_cnt, 1);
+//                if( rec->rx_pkt_cnt % SAMPLEBUF_SIZE == 0 ){
+//                    rec->accu_rx_timestamp = 0x123456789;
+//                    return XDP_PASS;
+//                } else {
+//                    return XDP_DROP;
+//                }
             }
         }
 
