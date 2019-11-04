@@ -92,7 +92,7 @@ int  xdp_avtp_func(struct xdp_md *ctx)
 {
 
 	eth_headerQ_t *eth;
-//    __u8 listen_dst_mac[6] =     {0x00,0x00,0x00,0x00,0x00,0x00};
+    __u8 listen_dst_mac[6] =     {0x00,0x00,0x00,0x00,0x00,0x00};
 //    __u8 listen_stream_id[8] =   {0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00};
 	void *data_end = (void *)(long)ctx->data_end;
 	void *data = (void *)(long)ctx->data;
@@ -115,7 +115,7 @@ int  xdp_avtp_func(struct xdp_md *ctx)
 
 	nh_type = parse_ethhdr(&nh, data_end, &eth);
     if( nh_type == bpf_htons(ETH_P_TSN) ){
-//        if( __builtin_memcmp(listen_dst_mac, eth->h_dest, 6 ) == 0 ){
+        if( __builtin_memcmp(listen_dst_mac, eth->h_dest, 6 ) == 0 ){
 //            seventeen22_header_t *hdr1722;
 //            __u8 proto1722 = parse_1722hdr(&nh, data_end, &hdr1722);
 //            if( bpf_htons(proto1722) == 0x00
@@ -149,8 +149,8 @@ int  xdp_avtp_func(struct xdp_md *ctx)
 ////                    goto dropping;
 ////                }
 //            }
-//        }
         rec->rx_pkt_cnt++;
+        }
     }
 
 //passing:
