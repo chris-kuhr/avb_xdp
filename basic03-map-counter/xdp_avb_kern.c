@@ -119,12 +119,6 @@ int  xdp_avtp_func(struct xdp_md *ctx)
                 rec = bpf_map_lookup_elem(&xdp_stats_map, &key);
                 if (!rec) return XDP_ABORTED;
 
-//                __u64 accu_rx_timestamp = rec->accu_rx_timestamp;
-//                __u32 rx_pkt_cnt = rec->rx_pkt_cnt;
-//                int sampleCounter = rec->sampleCounter;
-//                int sampleBuffer = rec->sampleBuffer[0];
-
-
                 six1883_header_t *hdr61883;
                 //__u8 audioChannels =
                 parse_61883hdr(&nh, data_end, &hdr61883);
@@ -139,29 +133,23 @@ int  xdp_avtp_func(struct xdp_md *ctx)
                     for(i=0; i<6*AUDIO_CHANNELS;i+=AUDIO_CHANNELS){
                         __u32 sample = bpf_htonl(avtpSamples[i+j]) & 0x00ffffff;
                         sample <<= 8;
-                        rec->sampleBuffer[j][i] = (int) sample;//(float)((int)sample);///(float)(2);// use tail here
-                        rec->sampleCounter++;
+//                        rec->sampleBuffer[j][i] = (int) sample;//(float)((int)sample);///(float)(2);// use tail here
+//                        rec->sampleCounter++;
                     }
                 }
 
 
 
-                rec->rx_pkt_cnt++;
-                if( rec->rx_pkt_cnt % SAMPLEBUF_SIZE == 0 ){
-                    rec->accu_rx_timestamp = 0x123456789;
-                } else {
-                    //goto dropping;
-                }
+//                rec->rx_pkt_cnt++;
+//                if( rec->rx_pkt_cnt % SAMPLEBUF_SIZE == 0 ){
+//                    rec->accu_rx_timestamp = 0x123456789;
+//                } else {
+//                    //goto dropping;
+//                }
             }
         }
 
     }
-
-//	rec->accu_rx_timestamp = accu_rx_timestamp;
-//	rec->rx_pkt_cnt = rx_pkt_cnt;
-//	rec->sampleCounter = sampleCounter;
-//	rec->sampleBuffer[0] = sampleBuffer;
-
 
     return XDP_PASS;
 
