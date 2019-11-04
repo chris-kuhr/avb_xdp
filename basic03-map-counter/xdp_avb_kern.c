@@ -103,9 +103,9 @@ int  xdp_avtp_func(struct xdp_md *ctx)
 
 
     //     Lookup in kernel BPF-side return pointer to actual data record
-    __u32 key = AUDIO_CHANNELS;
-    rec = bpf_map_lookup_elem(&xdp_stats_map, &key);
-    if (!rec) return XDP_ABORTED;
+    __u32 key = XDP_PASS;
+//    rec = bpf_map_lookup_elem(&xdp_stats_map, &key);
+//    if (!rec) return XDP_ABORTED;
 
     //Start next header cursor position at data start
 	nh.pos = data;
@@ -126,6 +126,8 @@ int  xdp_avtp_func(struct xdp_md *ctx)
                 #pragma unroll
                 for(j=0; j<AUDIO_CHANNELS;j++){
 
+                    rec = bpf_map_lookup_elem(&xdp_stats_map, &key);
+                    if (!rec) return XDP_ABORTED;
 
                     #pragma unroll
                     for(i=0; i<6*AUDIO_CHANNELS;i+=AUDIO_CHANNELS){
