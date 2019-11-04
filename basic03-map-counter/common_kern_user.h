@@ -12,7 +12,7 @@ struct datarec{
 	__u64 accu_rx_timestamp;
 	__u32 rx_pkt_cnt;
 	int sampleCounter;
-	int sampleBuffer[SAMPLEBUF_SIZE+SAMPLEBUF_SIZE/4]];
+	int sampleBuffer[SAMPLEBUF_SIZE+SAMPLEBUF_SIZE/4];
 };
 
 #ifndef XDP_ACTION_MAX
