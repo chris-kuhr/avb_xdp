@@ -121,7 +121,7 @@ static void stats_print(struct stats_record *stats_rec,
 		packets = rec->total.rx_pkt_cnt - prev->total.rx_pkt_cnt;
 		pps     = packets / period;
 
-		printf(fmt, action, rec->total.rx_pkt_cnt, rec->total.accu_rx_timestamp, (rec->total.sampleBuffer/*[120]*/ /(float)(MAX_SAMPLE_VALUE)), rec->total.sampleCounter, pps, period);
+		printf(fmt, action, rec->total.rx_pkt_cnt, rec->total.accu_rx_timestamp, (rec->total.sampleBuffer[0]/*[120]*/ /(float)(MAX_SAMPLE_VALUE)), rec->total.sampleCounter, pps, period);
 	}
 }
 
