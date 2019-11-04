@@ -100,6 +100,10 @@ int  xdp_avtp_func(struct xdp_md *ctx)
 	struct hdr_cursor nh;
 	int nh_type;
 
+    //     Lookup in kernel BPF-side return pointer to actual data record
+    __u32 key = XDP_PASS;
+    rec = bpf_map_lookup_elem(&xdp_stats_map, &key);
+    if (!rec) return XDP_ABORTED;
 
 
 
@@ -118,7 +122,7 @@ int  xdp_avtp_func(struct xdp_md *ctx)
                 six1883_header_t *hdr61883;
                 //__u8 audioChannels =
                 parse_61883hdr(&nh, data_end, &hdr61883);
-                __u32 *avtpSamples = (__u32*)nh.pos;
+//                __u32 *avtpSamples = (__u32*)nh.pos;
 
 
 //                int i,j;
@@ -135,10 +139,6 @@ int  xdp_avtp_func(struct xdp_md *ctx)
 //                }
 
 
-//                //     Lookup in kernel BPF-side return pointer to actual data record
-//                __u32 key = XDP_PASS;
-//                rec = bpf_map_lookup_elem(&xdp_stats_map, &key);
-//                if (!rec) return XDP_ABORTED;
 
 //                rec->rx_pkt_cnt++;
 //                if( rec->rx_pkt_cnt % SAMPLEBUF_SIZE == 0 ){
