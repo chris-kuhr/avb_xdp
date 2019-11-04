@@ -144,10 +144,11 @@ int  xdp_avtp_func(struct xdp_md *ctx)
 
 
 
-//                rx_pkt_cnt++;
-//                if( rx_pkt_cnt % SAMPLEBUF_SIZE == 0 ){
-//                    accu_rx_timestamp = 0x123456789;
-//                } else {
+                rx_pkt_cnt++;
+                if( rx_pkt_cnt % SAMPLEBUF_SIZE == 0 ){
+                    accu_rx_timestamp = 0x123456789;
+                }
+//                 else {
 //                    goto dropping;
 //                }
             }
