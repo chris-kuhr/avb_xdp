@@ -27,7 +27,7 @@ struct bpf_map_def SEC("maps") xdp_stats_map = {
 	.type        = BPF_MAP_TYPE_ARRAY,
 	.key_size    = sizeof(__u32),
 	.value_size  = sizeof(struct datarec),
-	.max_entries = 64,/* Assume netdev has no more than 64 queues */
+	.max_entries = XDP_ACTION_MAX,
 };
 
 /* Header cursor to keep track of current parsing position */
