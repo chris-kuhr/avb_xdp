@@ -39,7 +39,7 @@ static __always_inline __u16 parse_ethhdr(struct hdr_cursor *nh,
 	int hdrsize = sizeof(*eth);
 
 	if (nh->pos + hdrsize > data_end)
-		return -1;
+		return 0xffff;
 
 	nh->pos += hdrsize;
 	*ethhdr = eth;
@@ -54,7 +54,7 @@ static __always_inline __u8 parse_1722hdr(struct hdr_cursor *nh,
 	int hdrsize = sizeof(*tmp_hdr1722);
 
 	if (nh->pos + hdrsize > data_end)
-		return -1;
+		return 0xff;
 
 	nh->pos += hdrsize;
 	*hdr1722 = tmp_hdr1722;
@@ -113,7 +113,7 @@ int  xdp_avtp_func(struct xdp_md *ctx)
     //Start next header cursor position at data start
 	nh.pos = data;
 
-	if( -1 == (nh_type = parse_ethhdr(&nh, data_end, &eth))) return XDP_PASS;
+	if( 0xffff == (nh_type = parse_ethhdr(&nh, data_end, &eth))) return XDP_PASS;
     if( nh_type == bpf_htons(ETH_P_TSN) ){
         if( (listen_dst_mac[0] == eth->h_dest[0])
                     && (listen_dst_mac[1] == eth->h_dest[1])
@@ -124,7 +124,7 @@ int  xdp_avtp_func(struct xdp_md *ctx)
 
             seventeen22_header_t *hdr1722;
             __u8 proto1722;
-            if( -1 == (proto1722 = parse_1722hdr(&nh, data_end, &hdr1722))) return XDP_PASS;
+            if( 0xff == (proto1722 = parse_1722hdr(&nh, data_end, &hdr1722))) return XDP_PASS;
             if( bpf_htons(proto1722) == 0x00
                         && (listen_stream_id[0] == hdr1722->stream_id[0])
                         && (listen_stream_id[1] == hdr1722->stream_id[1])
