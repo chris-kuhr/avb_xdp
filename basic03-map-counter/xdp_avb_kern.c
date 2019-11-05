@@ -76,8 +76,8 @@ static __always_inline __u8 parse_61883hdr(struct hdr_cursor *nh,
 		return 0xff;
 
 
-//    if( nh->pos + hdrsize +  tmp_hdr61883->data_block_continuity * 4 > data_end)
-//		return 0xff;
+    if( nh->pos + hdrsize +  tmp_hdr61883->data_block_continuity * 4 > data_end)
+		return 0xff;
 
 	nh->pos += hdrsize;
 	*hdr61883 = tmp_hdr61883;
