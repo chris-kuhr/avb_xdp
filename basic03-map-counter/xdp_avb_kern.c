@@ -62,23 +62,24 @@ static __always_inline __u8 parse_1722hdr(struct hdr_cursor *nh,
 	return tmp_hdr1722->subtype_cd & 0x7F; /* network-byte-order */
 }
 
-//static __always_inline __u8 parse_61883hdr(struct hdr_cursor *nh,
-//					void *data_end, six1883_header_t **hdr61883)
-//{
-//	six1883_header_t *tmp_hdr61883 = nh->pos;
-//	int hdrsize = sizeof(*tmp_hdr61883);
-//
-//	/* Byte-count bounds check; check if current pointer + size of header
-//	 * is after data_end.
-//	 */
-//	if (nh->pos + hdrsize > data_end)
-//		return -1;
-//
-//	nh->pos += hdrsize;
-//	*hdr61883 = tmp_hdr61883;
-//
-//	return tmp_hdr61883->data_block_size; /* network-byte-order */
-//}
+static __always_inline __u8 parse_61883hdr(struct hdr_cursor *nh,
+					void *data_end, six1883_header_t **hdr61883)
+{
+	six1883_header_t *tmp_hdr61883 = nh->pos;
+
+	int hdrsize = sizeof(*tmp_hdr61883) + tmp_hdr61883->data_block_continuity * 4;
+
+	/* Byte-count bounds check; check if current pointer + size of header
+	 * is after data_end.
+	 */
+	if (nh->pos + hdrsize > data_end)
+		return 0xff;
+
+	nh->pos += hdrsize;
+	*hdr61883 = tmp_hdr61883;
+
+	return tmp_hdr61883->data_block_size; /* network-byte-order */
+}
 
 /* LLVM maps __sync_fetch_and_add() as a built-in function to the BPF atomic add
  * instruction (that is BPF_STX | BPF_XADD | BPF_W for word sizes)
@@ -105,15 +106,12 @@ int  xdp_avtp_func(struct xdp_md *ctx)
 
 
 	struct hdr_cursor nh;
-	int nh_type;
-
-
-
-
     //Start next header cursor position at data start
 	nh.pos = data;
 
-	if( 0xffff == (nh_type = parse_ethhdr(&nh, data_end, &eth))) return XDP_PASS;
+	int nh_type = parse_ethhdr(&nh, data_end, &eth);
+	if( 0xffff == nh_type)
+        return XDP_PASS;
     if( nh_type == bpf_htons(ETH_P_TSN) ){
         if( (listen_dst_mac[0] == eth->h_dest[0])
                     && (listen_dst_mac[1] == eth->h_dest[1])
@@ -123,8 +121,9 @@ int  xdp_avtp_func(struct xdp_md *ctx)
                     && (listen_dst_mac[5] == eth->h_dest[5]) ){
 
             seventeen22_header_t *hdr1722;
-            __u8 proto1722;
-            if( 0xff == (proto1722 = parse_1722hdr(&nh, data_end, &hdr1722))) return XDP_PASS;
+            __u8 proto1722 = = parse_1722hdr(&nh, data_end, &hdr1722);
+            if( 0xff == proto1722)
+                return XDP_PASS;
             if( bpf_htons(proto1722) == 0x00
                         && (listen_stream_id[0] == hdr1722->stream_id[0])
                         && (listen_stream_id[1] == hdr1722->stream_id[1])
@@ -134,25 +133,27 @@ int  xdp_avtp_func(struct xdp_md *ctx)
                         && (listen_stream_id[5] == hdr1722->stream_id[5])
                         && (listen_stream_id[6] == hdr1722->stream_id[6])
                         && (listen_stream_id[7] == hdr1722->stream_id[7]) ){
-//
-//                six1883_header_t *hdr61883;
-//                //__u8 audioChannels =
-//                parse_61883hdr(&nh, data_end, &hdr61883);
-//                __u32 *avtpSamples = (__u32*)nh.pos;
-//
-//
-//                int i,j;
-//                #pragma unroll
-//                for(j=0; j<AUDIO_CHANNELS;j++){
-//
-//                    #pragma unroll
-//                    for(i=0; i<6*AUDIO_CHANNELS;i+=AUDIO_CHANNELS){
-//                        __u32 sample = bpf_htonl(avtpSamples[i+j]) & 0x00ffffff;
-//                        sample <<= 8;
-//                        rec->sampleBuffer[j][i] = (int) sample;//(float)((int)sample);///(float)(2);// use tail here
-//                        rec->sampleCounter++;
-//                    }
-//                }
+
+                six1883_header_t *hdr61883;
+                __u8 audioChannels = parse_61883hdr(&nh, data_end, &hdr61883);
+                if( 0xff == audioChannels )
+                    return XDP_PASS;
+                __u32 *avtpSamples = (__u32*)nh.pos;
+
+
+
+                int i,j;
+                #pragma unroll
+                for(j=0; j<AUDIO_CHANNELS;j++){
+
+                    #pragma unroll
+                    for(i=0; i<6*AUDIO_CHANNELS;i+=AUDIO_CHANNELS){
+                        __u32 sample = bpf_htonl(avtpSamples[i+j]) & 0x00ffffff;
+                        sample <<= 8;
+                        rec->sampleBuffer[j][i] = (int) sample;//(float)((int)sample);///(float)(2);// use tail here
+                        rec->sampleCounter++;
+                    }
+                }
 
 
 
