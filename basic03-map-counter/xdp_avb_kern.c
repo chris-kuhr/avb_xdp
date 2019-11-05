@@ -140,7 +140,7 @@ int  xdp_avtp_func(struct xdp_md *ctx)
                 six1883_header_t *hdr61883;
                 __u8 audioChannels = parse_61883hdr(&nh, data_end, &hdr61883);
                 if( 0xff == audioChannels )
-                    return XDP_PASS;
+                    return XDP_DROP;
 
                 __u32 *avtpSamples = (__u32*)nh.pos;
 
@@ -150,6 +150,8 @@ int  xdp_avtp_func(struct xdp_md *ctx)
 
                     #pragma unroll
                     for(i=0; i<6*AUDIO_CHANNELS;i+=AUDIO_CHANNELS){
+                        if( !avtpSamples[i+j] )
+                            return XDP_DROP;
                         __u32 sample = bpf_htonl(avtpSamples[i+j]) & 0x00ffffff;
                         sample <<= 8;
                         rec->sampleBuffer[j][i] = (int) sample;//(float)((int)sample);///(float)(2);// use tail here
