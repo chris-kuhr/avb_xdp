@@ -113,7 +113,7 @@ int  xdp_avtp_func(struct xdp_md *ctx)
     //Start next header cursor position at data start
 	nh.pos = data;
 
-	if( -1 == (nh_type = parse_ethhdr(&nh, data_end, &eth)) return XDP_PASS;
+	if( -1 == (nh_type = parse_ethhdr(&nh, data_end, &eth))) return XDP_PASS;
     if( nh_type == bpf_htons(ETH_P_TSN) ){
         if( (listen_dst_mac[0] == eth->h_dest[0])
                     && (listen_dst_mac[1] == eth->h_dest[1])
@@ -124,7 +124,7 @@ int  xdp_avtp_func(struct xdp_md *ctx)
 
             seventeen22_header_t *hdr1722;
             __u8 proto1722;
-            if( -1 == (proto1722 = parse_1722hdr(&nh, data_end, &hdr1722)) return XDP_PASS;
+            if( -1 == (proto1722 = parse_1722hdr(&nh, data_end, &hdr1722))) return XDP_PASS;
             if( bpf_htons(proto1722) == 0x00
                         && (listen_stream_id[0] == hdr1722->stream_id[0])
                         && (listen_stream_id[1] == hdr1722->stream_id[1])
