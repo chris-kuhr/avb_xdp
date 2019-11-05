@@ -121,7 +121,7 @@ int  xdp_avtp_func(struct xdp_md *ctx)
                     && (listen_dst_mac[5] == eth->h_dest[5]) ){
 
             seventeen22_header_t *hdr1722;
-            __u8 proto1722 = = parse_1722hdr(&nh, data_end, &hdr1722);
+            __u8 proto1722 = parse_1722hdr(&nh, data_end, &hdr1722);
             if( 0xff == proto1722)
                 return XDP_PASS;
             if( bpf_htons(proto1722) == 0x00
