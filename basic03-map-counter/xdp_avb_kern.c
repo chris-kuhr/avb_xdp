@@ -59,9 +59,7 @@ static __always_inline __u8 parse_1722hdr(struct hdr_cursor *nh,
 	nh->pos += hdrsize;
 	*hdr1722 = tmp_hdr1722;
 
-	__u8 ret = tmp_hdr1722->subtype_cd & 0x7F;
-
-	return ret; /* network-byte-order */
+	return tmp_hdr1722->subtype_cd & 0x7F; /* network-byte-order */
 }
 
 //static __always_inline __u8 parse_61883hdr(struct hdr_cursor *nh,
@@ -115,7 +113,7 @@ int  xdp_avtp_func(struct xdp_md *ctx)
     //Start next header cursor position at data start
 	nh.pos = data;
 
-	nh_type = parse_ethhdr(&nh, data_end, &eth);
+	if( -1 == (nh_type = parse_ethhdr(&nh, data_end, &eth)) return XDP_PASS;
     if( nh_type == bpf_htons(ETH_P_TSN) ){
         if( (listen_dst_mac[0] == eth->h_dest[0])
                     && (listen_dst_mac[1] == eth->h_dest[1])
@@ -125,7 +123,8 @@ int  xdp_avtp_func(struct xdp_md *ctx)
                     && (listen_dst_mac[5] == eth->h_dest[5]) ){
 
             seventeen22_header_t *hdr1722;
-            __u8 proto1722 = parse_1722hdr(&nh, data_end, &hdr1722);
+            __u8 proto1722;
+            if( -1 == (proto1722 = parse_1722hdr(&nh, data_end, &hdr1722)) return XDP_PASS;
             if( bpf_htons(proto1722) == 0x00
                         && (listen_stream_id[0] == hdr1722->stream_id[0])
                         && (listen_stream_id[1] == hdr1722->stream_id[1])
