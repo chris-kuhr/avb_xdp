@@ -144,6 +144,10 @@ int  xdp_avtp_func(struct xdp_md *ctx)
 
                 __u32 *avtpSamples = (__u32*)nh.pos;
 
+                if( avtpSamples + 6*AUDIO_CHANNELS > data_end)
+                    return XDP_DROP;
+
+
                 int i,j;
                 #pragma unroll
                 for(j=0; j<AUDIO_CHANNELS;j++){
