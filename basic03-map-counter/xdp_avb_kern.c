@@ -158,7 +158,7 @@ int  xdp_avtp_func(struct xdp_md *ctx)
                             return XDP_DROP;
                         __u32 sample = bpf_htonl(avtpSamples[i+j]) & 0x00ffffff;
                         sample <<= 8;
-                        rec->sampleBuffer[j][i] = (int) sample;//(float)((int)sample);///(float)(2);// use tail here
+                        rec->sampleBuffer[j][i] = (int) sample;// use tail here
                         rec->sampleCounter++;
                     }
                 }
