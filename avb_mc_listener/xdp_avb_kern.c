@@ -178,11 +178,11 @@ int  xdp_avtp_func(struct xdp_md *ctx)
                 if( rec->rx_pkt_cnt % SAMPLEBUF_SIZE == 0 ){
                     rec->accu_rx_timestamp = 0x123456789;
 
-                    /* A set entry here means that the correspnding queue_id
-                     * has an active AF_XDP socket bound to it. */
-                    if (bpf_map_lookup_elem(&xsks_map, &index))
-                        return bpf_redirect_map(&xsks_map, index, 0);
-//                    return XDP_PASS;
+//                    /* A set entry here means that the correspnding queue_id
+//                     * has an active AF_XDP socket bound to it. */
+//                    if (bpf_map_lookup_elem(&xsks_map, &index))
+//                        return bpf_redirect_map(&xsks_map, index, 0);
+                    return XDP_PASS;
 
                 } else {
                     return XDP_DROP;
