@@ -67,12 +67,16 @@ static __always_inline __u8 parse_61883hdr(struct hdr_cursor *nh,
 {
 	six1883_header_t *tmp_hdr61883 = nh->pos;
 
-	int hdrsize = sizeof(*tmp_hdr61883) + tmp_hdr61883->data_block_continuity * 4;
+	int hdrsize = sizeof(*tmp_hdr61883);
 
 	/* Byte-count bounds check; check if current pointer + size of header
 	 * is after data_end.
 	 */
 	if (nh->pos + hdrsize > data_end)
+		return 0xff;
+
+
+    if( nh->pos + hdrsize +  tmp_hdr61883->data_block_continuity * 4 > data_end)
 		return 0xff;
 
 	nh->pos += hdrsize;
