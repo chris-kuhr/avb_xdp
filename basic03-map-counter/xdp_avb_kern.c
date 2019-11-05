@@ -75,7 +75,6 @@ static __always_inline __u8 parse_61883hdr(struct hdr_cursor *nh,
 	if (nh->pos + hdrsize > data_end)
 		return 0xff;
 
-
     if( nh->pos + hdrsize +  tmp_hdr61883->data_block_continuity * 4 > data_end)
 		return 0xff;
 
@@ -143,7 +142,7 @@ int  xdp_avtp_func(struct xdp_md *ctx)
                 if( 0xff == audioChannels )
                     return XDP_PASS;
 
-//                __u32 *avtpSamples = (__u32*)nh.pos;
+                __u32 *avtpSamples = (__u32*)nh.pos;
 //
 //
 //
