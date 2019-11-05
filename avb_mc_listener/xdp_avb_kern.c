@@ -107,11 +107,13 @@ int  xdp_avtp_func(struct xdp_md *ctx)
     __u8 listen_stream_id[8] =   {0x00,0x9e,0x00,0x00,0x00,0x00,0x00,0x00};
 	void *data_end = (void *)(long)ctx->data_end;
 	void *data = (void *)(long)ctx->data;
+    int index = ctx->rx_queue_index;
 	struct datarec *rec = NULL;
 
+
     //     Lookup in kernel BPF-side return pointer to actual data record
-    __u32 key = XDP_PASS;
-    rec = bpf_map_lookup_elem(&xdp_stats_map, &key);
+    //__u32 key = XDP_PASS;
+    rec = bpf_map_lookup_elem(&xdp_stats_map, &index);
     if (!rec) return XDP_ABORTED;
 
 
@@ -178,7 +180,6 @@ int  xdp_avtp_func(struct xdp_md *ctx)
 
                     /* A set entry here means that the correspnding queue_id
                      * has an active AF_XDP socket bound to it. */
-                    int index = ctx->rx_queue_index;
                     if (bpf_map_lookup_elem(&xsks_map, &index))
                         return bpf_redirect_map(&xsks_map, index, 0);
 //                    return XDP_PASS;
