@@ -13,6 +13,13 @@
 #include "common_kern_user.h" /* defines: struct datarec; */
 
 
+struct bpf_map_def SEC("maps") xsks_map = {
+	.type = BPF_MAP_TYPE_XSKMAP,
+	.key_size = sizeof(int),
+	.value_size = sizeof(int),
+	.max_entries = 64,  /* Assume netdev has no more than 64 queues */
+};
+
 /* - Here an array with XDP_ACTION_MAX (max_)entries are created.
  * - The idea is to keep stats per (enum) xdp_action
  */
@@ -20,7 +27,7 @@ struct bpf_map_def SEC("maps") xdp_stats_map = {
 	.type        = BPF_MAP_TYPE_ARRAY,
 	.key_size    = sizeof(__u32),
 	.value_size  = sizeof(struct datarec),
-	.max_entries = XDP_ACTION_MAX,
+	.max_entries = 64,/* Assume netdev has no more than 64 queues */
 };
 
 /* Header cursor to keep track of current parsing position */
@@ -168,7 +175,13 @@ int  xdp_avtp_func(struct xdp_md *ctx)
                 rec->rx_pkt_cnt++;
                 if( rec->rx_pkt_cnt % SAMPLEBUF_SIZE == 0 ){
                     rec->accu_rx_timestamp = 0x123456789;
-                    return XDP_PASS;
+
+                    /* A set entry here means that the correspnding queue_id
+                     * has an active AF_XDP socket bound to it. */
+                    int index = ctx->rx_queue_index;
+                    if (bpf_map_lookup_elem(&xsks_map, &index))
+                        return bpf_redirect_map(&xsks_map, index, 0);
+
                 } else {
                     return XDP_DROP;
                 }
