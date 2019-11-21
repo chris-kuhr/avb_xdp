@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause)
 
-LESSONS = $(wildcard basic*) $(wildcard packet*) $(wildcard tracing??-*)
+LESSONS = $(wildcard basic*) $(wildcard packet*) $(wildcard tracing??-*) "xdp_skb_tstx"
 # LESSONS += advanced03-AF_XDP
 LESSONS_CLEAN = $(addsuffix _clean,$(LESSONS))
 
