@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause)
 
 XDP_TARGETS  := sockex2_kern
-USER_TARGETS := sockex2_user 
+USER_TARGETS := sockex2_user bpf_load
 
 LIBBPF_DIR = ../libbpf/src/
 COMMON_DIR = ../common
